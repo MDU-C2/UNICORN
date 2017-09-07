@@ -2,7 +2,7 @@
 
 The trash-collecting robot.
 
-##Getting Started
+## Getting Started
 
 Please read through the coding style guides we are using
 
