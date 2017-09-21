@@ -11,6 +11,21 @@ Please read through the coding style guides we are using
 
 ## Dependencies
 
+´´´
+sudo apt-get install ros-kinetic-effort-controllers
+sudo apt-get install ros-kinetic-gmapping
+sudo apt-get install ros-kinetic-gazebo-ros
+sudo apt-get install ros-kinetic-navigation
+cd ~/catkin_ws/src
+git clone https://github.com/HusqvarnaResearch/hrp.git
+git clone https://github.com/clearpathrobotics/LMS1xx.git
+git clone https://github.com/husky/husky.git
+cd ~/catkin_ws/src/husky
+git checkout kinetic-devel
+cd ~/catkin_ws && rosdep install --from-paths src --ignore-src -r -y
+cd ~/catkin_ws && catkin_make
+´´´
+
 ## How to Git
 
 Please refer to this cheat sheet before doing anything.
