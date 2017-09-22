@@ -3,7 +3,10 @@
 	<arg name="show_rviz" default="true"/>
 	<arg name="paused" default="false"/>
 	<arg name="debug" default="true"/>  
-	<arg name="gui" default="false"/> 
+	<arg name="gui" default="false"/>
+	<arg name="use_gmapping" default="true"/>
+	<arg name="use_hector" default="false"/>
+	<arg name="use_karto" default="false"/>
 
 	<!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
 	<!--<include file="$(find husky_gazebo)/launch/husky_playpen.launch">
@@ -13,10 +16,31 @@
 		<arg name="use_sim_time" value="true" />
 		<arg name="headless" value="false" />
 	</include>-->
-	<include file="$(find unicorn_slam)/launch/gmapping.launch"/>
-	<include file="$(find husky_gazebo)/launch/playpen.launch" />
+	<group if="$(arg use_gmapping)">
+		<include file="$(find unicorn_slam)/launch/gmapping_sim.launch"/>
+	</group>
+	<group if="$(arg use_hector)">
+		<include file="$(find unicorn_slam)/launch/hector_slam.launch"/>
+	</group>
+	
+	<param name="use_sim_time" value="false" />
+	<include file="$(find gazebo_ros)/launch/empty_world.launch">
+	    <arg name="world_name" value="$(find husky_gazebo)/worlds/clearpath_playpen.world"/>
+	    <arg name="paused" value="false"/>
+	    <arg name="use_sim_time" value="true"/>
+	    <arg name="gui" value="false"/>
+	    <arg name="headless" value="false"/>
+	    <arg name="debug" value="false"/>
+  	</include>
 	<include file="$(find unicorn_slam)/launch/move_base.launch"/>
 
+	<param name="/laser_frame" value="base_link_gazebo" />
+	<param name="/odometry_frame" value="odom_gazebo" />
+	<group if="$(arg use_karto)">
+		<node name="Mapper" pkg="nav2d_karto" type="mapper">
+		    <rosparam file="$(find unicorn_slam)/launch/karto.yaml"/>
+		</node>
+	</group>s
 
 	<!-- urdf xml robot description loaded on the Parameter Server-->
 	<param name="robot_description" command="$(find xacro)/xacro.py '$(find unicorn_description)/urdf/unicorn.urdf.xacro'" />

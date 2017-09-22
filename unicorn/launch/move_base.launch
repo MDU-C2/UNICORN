@@ -1,0 +1,18 @@
+<launch>
+  <master auto="start"/>
+
+  <!-- Run the map server -->
+  <!-- <node pkg="map_server" type="map_server" args="/home/akn13013/my_map.yaml" respawn="true" name="map" />-->
+
+  <!--- Run AMCL -->
+  <include file="$(find amcl)/examples/amcl_diff.launch" />
+	
+  <!--<node pkg="fake_localization" type="fake_localization" name="fake_local"/>-->
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <rosparam file="$(find unicorn)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find unicorn)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find unicorn)/config/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find unicorn)/config/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find unicorn)/config/base_local_planner_params.yaml" command="load" />
+  </node>
+</launch>
