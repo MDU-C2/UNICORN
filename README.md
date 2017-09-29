@@ -9,6 +9,7 @@ Please read through the coding style guides we are using
 * [CppStyleGuide](http://wiki.ros.org/CppStyleGuide) - ROS Cpp Style Guide
 * [PyStyleGuide](http://wiki.ros.org/PyStyleGuide) - ROS Python Style Guide
 
+
 ## Dependencies
 
 ```
@@ -24,6 +25,7 @@ git checkout kinetic-devel
 cd ~/catkin_ws && rosdep install --from-paths src --ignore-src -r -y
 cd ~/catkin_ws && catkin_make
 ```
+
 
 ## How to Git
 

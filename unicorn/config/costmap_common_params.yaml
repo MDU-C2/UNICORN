@@ -5,6 +5,8 @@ footprint_padding: 0.01
 #robot_radius: 0.5
 #inflation_radius: 0.55
 
+#cost_scaling_factor: 0.1
+
 observation_sources: laser_scan_sensor point_cloud_sensor
 
 laser_scan_sensor: {sensor_frame: base_laser, data_type: LaserScan, topic: /scan, marking: true, clearing: true}

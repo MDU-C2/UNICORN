@@ -1,5 +1,8 @@
 <launch>
-
+<!-- Open all ports if you receive error: "Can't access serial port open"
+	sudo usermod -a -G dialout <user> 
+    sudo reboot
+-->
 <!-- Run FastSLAM 2.0 -->
 <include file="$(find unicorn_slam)/launch/gmapping.launch"/>
 
@@ -22,12 +25,13 @@
 	<param name="serialLog" value="false"/>
 	<param name="hil" value="0"/>
 	<param name="jsonFile" value="$(find am_driver_safe)/config/automower_hrp.json" type="string" />
-</node>
+</node> 
 
 <!-- Start the Sick LMS111 driver -->
-<arg name="host" default="192.168.1.14" />
+<arg name="host" default="192.168.0.100" />
 <node pkg="lms1xx" name="lms1xx" type="LMS1xx_node">
 	<param name="host" value="$(arg host)" />
+	<param name="frame_id" value="base_laser" />
 </node>
 
 <!-- source that publishes the joint positions as a sensor_msgs/JointState -->
@@ -38,5 +42,9 @@
 <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher">
 	<param name="publish_frequency" value="50"/>
 </node>
+
+<node name="initialpose_publisher" pkg="unicorn" type="pub_initialpose"/>
+
+
 
 </launch>
