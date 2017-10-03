@@ -6,6 +6,14 @@
 <!-- Run FastSLAM 2.0 -->
 <include file="$(find unicorn_slam)/launch/gmapping.launch"/>
 
+<!-- Run zed camera -->
+<group ns="zed">
+    <include file="$(find zed_wrapper)/launch/zed_camera.launch">
+        <!-- compliant mode for rviz -->
+        <arg name="odometry_frame"        value="odom" />
+    </include>
+</group>
+
 <!-- Initiate navigation stack -->
 <include file="$(find unicorn)/launch/move_base.launch"/>
 
@@ -31,7 +39,6 @@
 <arg name="host" default="192.168.0.100" />
 <node pkg="lms1xx" name="lms1xx" type="LMS1xx_node">
 	<param name="host" value="$(arg host)" />
-	<param name="frame_id" value="base_laser" />
 </node>
 
 <!-- source that publishes the joint positions as a sensor_msgs/JointState -->
@@ -44,6 +51,11 @@
 </node>
 
 <node name="initialpose_publisher" pkg="unicorn" type="pub_initialpose"/>
+
+<!-- Lidar angle limitations (rad) -->
+<rosparam param="lower_angle">-1.48</rosparam>
+<rosparam param="upper_angle">1.48</rosparam>
+<node name="laser_filter" pkg="unicorn" type="laser_scan_filter" output="screen"/>
 
 
 

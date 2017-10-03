@@ -1,6 +1,6 @@
 <launch>
   <master auto="start"/>
-
+  <arg name="use_teb" default="false"/>
   <!-- Run the map server -->
   <!-- <node pkg="map_server" type="map_server" args="/home/akn13013/my_map.yaml" respawn="true" name="map" />-->
 
@@ -9,6 +9,9 @@
 	
   <!--<node pkg="fake_localization" type="fake_localization" name="fake_local"/>-->
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <group if="$(arg use_teb)">
+    <!-- stuff that will only be evaluated if use_teb is true -->
+    </group>
     <rosparam file="$(find unicorn)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
     <rosparam file="$(find unicorn)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
     <rosparam file="$(find unicorn)/config/local_costmap_params.yaml" command="load" />
