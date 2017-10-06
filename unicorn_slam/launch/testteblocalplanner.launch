@@ -13,7 +13,7 @@
 		<arg name="use_sim_time" value="true" />
 		<arg name="headless" value="false" />
 	</include>-->
-	<include file="$(find unicorn_slam)/launch/gmapping.launch"/>
+	<include file="$(find unicorn_slam)/launch/gmapping_sim.launch"/>
 	<include file="$(find unicorn_slam)/launch/openworld.launch" />
 	<include file="$(find unicorn_slam)/launch/move_base_teb.launch"/>
 
@@ -39,6 +39,11 @@
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher">
 		<param name="publish_frequency" value="50"/>
 	</node>
+
+	<!-- Lidar angle limitations (rad) -->
+  <rosparam param="lower_angle">-1.48</rosparam>
+  <rosparam param="upper_angle">1.48</rosparam>
+  <node name="laser_filter" pkg="unicorn" type="laser_scan_filter" output="screen"/>
 
   
   
