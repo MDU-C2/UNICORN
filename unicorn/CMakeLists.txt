@@ -57,12 +57,12 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate services in the 'srv' folder
-  add_service_files(
-  	DIRECTORY
-  	srv
-    FILES
-    init_pose.srv
- )
+  #add_service_files(
+  #	DIRECTORY
+  #	srv
+  #  FILES
+  #  init_pose.srv
+ #)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -129,9 +129,6 @@ include_directories(
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/unicorn.cpp
 # )
-
-add_executable(pub_initialpose src/pub_initialpose.cpp)
-target_link_libraries(pub_initialpose ${catkin_LIBRARIES})
 
 add_executable(laser_scan_filter src/laser_scan_filter.cpp)
 target_link_libraries(laser_scan_filter ${catkin_LIBRARIES})
