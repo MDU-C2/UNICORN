@@ -95,5 +95,11 @@ And if it is down set it up using:
 
 Then repeat the nmap and if you find the ip address (typically 192.168.0.100) then compare it to the one set in `main_target.launch` under "Start the LMS111...".
 
+### Run simulation
+
+> roslaunch unicorn unicorn_sim.launch
+
+`Note:` Keep in mind that changing the model used may require you to comment out the line `<node name="am_unicorn_interface" pkg="unicorn" type="am_unicorn_interface" output="screen"/>` if the model is forward driven.
+
 
 

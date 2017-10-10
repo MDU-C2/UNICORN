@@ -136,6 +136,9 @@ target_link_libraries(pub_initialpose ${catkin_LIBRARIES})
 add_executable(laser_scan_filter src/laser_scan_filter.cpp)
 target_link_libraries(laser_scan_filter ${catkin_LIBRARIES})
 
+add_executable(am_unicorn_interface src/am_unicorn_interface.cpp)
+target_link_libraries(am_unicorn_interface ${catkin_LIBRARIES})
+
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure

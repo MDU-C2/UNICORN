@@ -19,7 +19,7 @@
 
   <!-- LMS111 -->
   <xacro:arg name="laser_xyz" default="0.0 0.0 0.260" />
-  <xacro:arg name="laser_rpy" default="0.0 0.0 ${M_PI}" />
+  <xacro:arg name="laser_rpy" default="0.0 0.0 0.0" />
   <xacro:include filename="$(find lms1xx)/urdf/sick_lms1xx.urdf.xacro" />
 
   <!-- Wheel -->
@@ -31,7 +31,7 @@
   <!-- Materials -->
   <xacro:include filename="$(find am_description)/urdf/materials.urdf.xacro" />
 
-  
+
   <link
     name="base_link_gazebo">
     <inertial>
@@ -44,8 +44,8 @@
     </inertial>
     <visual>
       <origin
-        xyz="0.17 0 0"
-        rpy="0 0 ${M_PI}" />
+        xyz="-0.205 0 0"
+        rpy="0 0 0" />
       <geometry>
         <mesh
           filename="package://unicorn_description/meshes/base_link.STL" />
@@ -58,18 +58,18 @@
     </visual>
     <collision>
       <origin
-        xyz="0.17 0 0.08"
-        rpy="0 0 ${M_PI}" />
+        xyz="-0.205 0 0.08"
+        rpy="0 0 0" />
       <geometry>
         <!-- <mesh
           filename="package://unicorn_description/meshes/base_link.STL" /> -->
           <box size="0.65 0.5 0.2"/>
       </geometry>
-      <!-- <surface>
-         <friction>
-           <ode><mu>0</mu><mu2>0</mu2></ode>
-         </friction>
-      </surface> -->
+	    <!-- <surface>
+	       <friction>
+	         <ode><mu>0</mu><mu2>0</mu2></ode>
+	       </friction>
+	    </surface> -->
     </collision>
   </link>
   <gazebo reference="base_link_gazebo">
@@ -80,8 +80,8 @@
   <wheel fb="back" lr="right" parent="base_link_gazebo" translateY="-0.24" translateX="0.0" translateZ="-0.006" wheel_radius="0.1225" wheel_height="0.032" flip="1"/>
   <wheel fb="back" lr="left" parent="base_link_gazebo" translateY="0.24" translateX="0.0" translateZ="-0.006" wheel_radius="0.1225" wheel_height="0.032" flip="1"/>
 
-  <swivel_wheel fb="front" lr="right" parent="base_link_gazebo" translateY="-0.16" translateX="0.205" translateZ="0.03" wheel_radius="0.05" wheel_height="0.05" flip="0"/>
-  <swivel_wheel fb="front" lr="left" parent="base_link_gazebo" translateY="0.16" translateX="0.205" translateZ="0.03" wheel_radius="0.05" wheel_height="0.05" flip="0"/>
+  <swivel_wheel fb="front" lr="right" parent="base_link_gazebo" translateY="-0.16" translateX="-0.355" translateZ="0.03" wheel_radius="0.05" wheel_height="0.05" flip="0"/>
+  <swivel_wheel fb="front" lr="left" parent="base_link_gazebo" translateY="0.16" translateX="-0.355" translateZ="0.03" wheel_radius="0.05" wheel_height="0.05" flip="0"/>
 
   <!-- LOOP SENSORs -->
   <!-- <sensorpos name="loop_front_center" parent="base_link_gazebo" translateX="0.38" translateY="0.0" translateZ="-0.04"/>
@@ -105,9 +105,9 @@
         </geometry>
         <material name="Purple" />
     </visual>
-  </link> -->
+  </link>
 
-  <!-- <gazebo reference="cutting_disc_center">
+  <gazebo reference="cutting_disc_center">
     <turnGravityOff>false</turnGravityOff>
   </gazebo>
 
@@ -159,7 +159,7 @@
       <wheelSeparation>0.4645</wheelSeparation>
       <wheelDiameter>0.245</wheelDiameter>
       <wheelTorque>100</wheelTorque>
-      <commandTopic>/unicorn/cmd_vel</commandTopic>
+      <commandTopic>cmd_vel</commandTopic>
       <odometryTopic>odom</odometryTopic>
       <odometryFrame>odom_gazebo</odometryFrame>
       <robotBaseFrame>base_footprint</robotBaseFrame>

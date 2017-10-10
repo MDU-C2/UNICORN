@@ -1,13 +1,13 @@
 <launch>
-	<master auto="start"/>
 
+	<!-- <remap from="cmd_vel" to="/unicorn/cmd_vel"/> -->
 	<!-- roslaunch arguments -->
 	<arg name="use_teb_planner" default="true"/>
 	<arg name="show_rviz" default="true"/>
 	<arg name="paused" default="false"/>
 	<arg name="debug" default="false"/>  
 	<arg name="gazebo_gui" default="false"/>
-	<arg name="use_gmapping" default="true"/>
+	<arg name="use_gmapping" default="false"/>
 	<arg name="scan_topic" value="scan_filtered"/>
 	<arg name="map_file" value="$(find unicorn_slam)/maps/gmap_map.yaml"/>
 	<!-- Joint pos gui -->
@@ -35,10 +35,11 @@
     	  <remap from="scan" to="$(arg scan_topic)"/>
     	</node>
 	</group>
+	<!-- <include file="$(find husky_navigation)/launch/move_base.launch"/> -->
 	<group if="$(arg use_teb_planner)">
     	<rosparam file="$(find unicorn_description)/config/base_local_planner_teb.yaml" command="load" />
     	<param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
-    	<param name="controller_frequency" value="10.0" /> 
+    	<param name="controller_frequency" value="20.0" /> 
     </group>
     <group unless="$(arg use_teb_planner)">
     	<rosparam file="$(find unicorn_description)/config/base_local_planner_params.yaml" command="load" />
@@ -49,6 +50,7 @@
     	<rosparam file="$(find unicorn_description)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
     	<rosparam file="$(find unicorn_description)/config/local_costmap_params.yaml" command="load" />
     	<rosparam file="$(find unicorn_description)/config/global_costmap_params.yaml" command="load" />
+    	<remap from="cmd_vel" to="/unicorn/cmd_vel"/> 
 	</node>
 
 	<!-- Launch gazebo world -->
@@ -60,9 +62,8 @@
 	    <arg name="headless" value="false"/>
 	    <arg name="debug" value="false"/>
  	</include>
-
 	<!-- urdf xml robot description loaded on the Parameter Server-->
-	<param name="robot_description" command="$(find xacro)/xacro.py '$(find unicorn_description)/urdf/unicorn_2.urdf.xacro'" />
+	<param name="robot_description" command="$(find xacro)/xacro.py '$(find unicorn_description)/urdf/unicorn_2_back.urdf.xacro'" />
 	
 	<!-- push robot_description to factory and spawn robot in gazebo -->
 	<node name="automower_spawn" pkg="gazebo_ros" type="spawn_model" output="screen" args="-urdf -param robot_description -model automower -x 0.0 -y 0.0 -z 0.2 -Y 0.0" /> <!-- 5.5 -2.6 0.2 -1.5707 -->
@@ -81,8 +82,10 @@
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher">
 		<param name="publish_frequency" value="50"/>
 	</node>
-
+	<!-- Starts laser filter to enable limitation of laserscan angle -->
 	<node name="laser_filter" pkg="unicorn" type="laser_scan_filter" output="screen"/>
+	<!-- Starts interface between automower and unicorn to enable backward driving -->
+	<node name="am_unicorn_interface" pkg="unicorn" type="am_unicorn_interface" output="screen"/>
 
  
 </launch>
