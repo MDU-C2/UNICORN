@@ -35,7 +35,7 @@ laser_model_type:           likelihood_field
 
 # Odometery model parameters
 odom_model_type:  diff
-odom_alpha1:      0.5    # 0.2 rr
+odom_alpha1:      0.1    # 0.2 rr
 odom_alpha2:      0.25   # 0.2 rt
 odom_alpha3:      0.6    # 0.2,0.8 tt
 odom_alpha4:      0.25   # 0.2 tr

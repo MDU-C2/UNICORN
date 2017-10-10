@@ -57,12 +57,12 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate services in the 'srv' folder
-  #add_service_files(
-  #	DIRECTORY
-  #	srv
-  #  FILES
-  #  init_pose.srv
- #)
+  add_service_files(
+  	DIRECTORY
+  	srv
+    FILES
+    init_pose.srv
+ )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -132,6 +132,9 @@ include_directories(
 
 add_executable(laser_scan_filter src/laser_scan_filter.cpp)
 target_link_libraries(laser_scan_filter ${catkin_LIBRARIES})
+
+add_executable(am_unicorn_interface src/am_unicorn_interface.cpp)
+target_link_libraries(am_unicorn_interface ${catkin_LIBRARIES})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
