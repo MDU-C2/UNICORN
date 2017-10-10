@@ -1,14 +1,14 @@
 odom_frame: odom_gazebo
-base_frame: base_link_gazebo
+base_frame: chassis_link
 map_frame: map
-map_update_interval: 5.0 # Publish new map
+map_update_interval: 0.5 # Publish new map
 maxUrange: 19.0 # Should be just less than sensor range
 maxRange: 20.1 # Should be just greater than sensor range
-particles: 100 # Increased from 30
+particles: 30 # Increased from 30
 
 # Update frequencies
-linearUpdate: 1.0
-angularUpdate: 0.5
+linearUpdate: 0.5
+angularUpdate: 0.3
 temporalUpdate: 2.0
 resampleThreshold: 0.5  # 0.5
 
