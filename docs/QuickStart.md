@@ -101,5 +101,12 @@ Then repeat the nmap and if you find the ip address (typically 192.168.0.100) th
 
 `Note:` Keep in mind that changing the model used may require you to comment out the line `<node name="am_unicorn_interface" pkg="unicorn" type="am_unicorn_interface" output="screen"/>` if the model is forward driven.
 
+If you want to run the unicorn simulation with camera and lidar fusion costmaps use
 
+> roslaunch unicorn_slam unicorn_sim_camera_mapping.launch 
 
+or if you want to use the less computationally intense version use
+
+> roslaunch unicorn_slam unicorn_sim_camera_mapping_filtered_cloud.launch
+
+the filtered version uses a voxel_grid to filter the output pointcloud before using it for the costmap.
