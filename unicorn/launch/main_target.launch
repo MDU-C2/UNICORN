@@ -22,7 +22,7 @@
 
 	<!-- Launch grid-mapping -->
 	<node pkg="gmapping" type="slam_gmapping" name="slam_gmapping">
-	   	<rosparam file="$(find unicorn_slam)/config/gmapping.yaml"/>
+	   	<rosparam file="$(find unicorn_slam)/config/gmapping_default.yaml"/>
 	   	<remap from="scan" to="$(arg scan_topic)"/>
 	</node>
 </group>
@@ -79,9 +79,7 @@
 	<param name="frame_id" value="base_laser"/>
 </node>
 
-<!-- Launch Move Base -->
-<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-  <group if="$(arg use_teb_planner)">
+<group if="$(arg use_teb_planner)">
     <rosparam file="$(find unicorn_description)/config/base_local_planner_teb.yaml" command="load" />
     <param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
     <param name="controller_frequency" value="10.0" /> 
@@ -89,6 +87,8 @@
   <group unless="$(arg use_teb_planner)">
     <rosparam file="$(find unicorn)/config/base_local_planner_params.yaml" command="load" />
   </group>
+<!-- Launch Move Base -->
+<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
   <rosparam file="$(find unicorn)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
   <rosparam file="$(find unicorn)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
   <rosparam file="$(find unicorn)/config/local_costmap_params.yaml" command="load" />

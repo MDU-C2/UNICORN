@@ -19,7 +19,7 @@ also runs costmap creation using lidar and camera that takes into account 3d obj
 	</node>
 	<!-- Opens the world specified in arg="world_name" -->
 	<include file="$(find gazebo_ros)/launch/empty_world.launch">
-		<arg name="world_name" value="$(find unicorn_slam)/worlds/testworld3.world"/>
+		<arg name="world_name" value="$(find unicorn_slam)/worlds/testworld.world"/>
 		<arg name="paused" value="false"/>
 		<arg name="use_sim_time" value="true"/>
 		<arg name="gui" value="true"/>
@@ -29,7 +29,7 @@ also runs costmap creation using lidar and camera that takes into account 3d obj
 
 	<!-- Launches move_base and loads the costmap and planner settings -->
 	<!--- Run AMCL -->
-	<include file="$(find amcl)/examples/amcl_diff.launch" />
+	<!-- <include file="$(find amcl)/examples/amcl_diff.launch" /> -->
 	<!-- Start the move_base pkg and load the sim costmap settings -->
 	<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" >
 		<!-- Load the costmap settings -->

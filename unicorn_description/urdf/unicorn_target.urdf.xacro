@@ -33,7 +33,7 @@
               izz="${m*(x*x+z*z)/12}" />
   </macro>
   <link 
-    name="chassis_link">
+    name="base_link">
     <inertial>
       <origin
         xyz="0.17 0 -0.10"
@@ -72,54 +72,12 @@
       </surface> -->
     </collision>
   </link>
-  <link
-    name="base_link">
-    <inertial>
-      <origin
-        xyz="0.17 0 0"
-        rpy="0 0 0" />
-      <mass
-        value="0.01" />
-      <box_inertia  m="${5*0.01}" x="${base_x_size}" y="${base_y_size}" z="${base_z_size}"/>
-    </inertial>
-    <visual>
-      <origin
-        xyz="0 0 0"
-        rpy="0 0 0" />
-      <geometry>
-        <box size="0.01 0.01 0.01"/>
-      </geometry>
-      <material
-        name="">
-        <color
-          rgba="0.79216 0.81961 0.93333 1" />
-      </material>
-    </visual>
-    <collision>
-      <origin
-        xyz="0 0 0"
-        rpy="0 0 0" />
-      <geometry>
-        <!-- <mesh
-          filename="package://unicorn_description/meshes/base_link.STL" /> -->
-          <box size="0.01 0.01 0.01"/>
-      </geometry>
-      <!-- <surface>
-         <friction>
-           <ode><mu>0</mu><mu2>0</mu2></ode>
-         </friction>
-      </surface> -->
-    </collision>
-  </link>
+  
   <gazebo reference="base_link_gazebo">
     <material>Gazebo/Green</material>
     <turnGravityOff>false</turnGravityOff>
   </gazebo>
-  <joint name="base_link_joint" type="fixed">
-    <parent link="chassis_link"/>
-    <child link="base_link_gazebo" />
-  <origin xyz="0 0.0 0" rpy="0 0 0" />
-  </joint>
+  
 
   
 

@@ -16,7 +16,7 @@
         <!-- Mesh file or a mesh box -->        
         <!-- Origin of this mesh is the focal point of the LIDAR. -->
         <!-- <mesh filename="package://unicorn_description/stereo_camera_model/zed_model.dae" /> -->
-          <box size="${0.035} ${0.025} ${0.19}"/>
+          <box size="${0.005} ${0.025} ${0.19}"/>
         </geometry>
         <material name="red"/>
       </visual>
