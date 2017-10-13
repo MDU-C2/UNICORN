@@ -15,6 +15,7 @@
   <xacro:include filename="$(find am_description)/urdf/swivel_wheel.urdf.xacro" />
   <xacro:include filename="$(find am_description)/urdf/sensorpos.urdf.xacro" />
   <xacro:include filename="$(find lms1xx)/urdf/sick_lms1xx.urdf.xacro" />
+  <xacro:include filename="$(find unicorn_description)/urdf/stereo_camera.urdf.xacro" />
   <!--<xacro:include filename="$(find husky_description)/urdf/accessories/sick_lms1xx_mount.urdf.xacro"/>-->
   <!--<xacro:include filename="$(find husky_description)/urdf/accessories/sensor_arch.urdf.xacro"/>-->
 
@@ -78,7 +79,63 @@
     <turnGravityOff>false</turnGravityOff>
   </gazebo>
   
+  <link name="zed_left_camera">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 1.57 0"/>
+            <geometry>
+                <cylinder radius="0.007" length=".031"/>
+            </geometry>
+            <material name="dark_grey">
+                <color rgba="0.1 0.1 0.1 1"/>
+            </material>
+        </visual>
+    </link>
+    <link name="zed_center">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <mesh filename="package://zed_wrapper/urdf/ZED.stl" />
+            </geometry>
+            <material name="light_grey">
+                <color rgba="0.8 0.8 0.8 0.8"/>
+            </material>
+        </visual>
+    </link>
+    <link name="zed_right_camera">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 1.57 0"/>
+            <geometry>
+                <cylinder radius="0.007" length=".031"/>
+            </geometry>
+            <material name="dark_grey">
+                <color rgba="0.1 0.1 0.1 1"/>
+            </material>
+        </visual>
+    </link>
+    <link name="zed_depth_camera" />
 
+    <joint name="zed_left_camera_joint" type="fixed">
+        <parent link="zed_center"/>
+        <child link="zed_left_camera"/>
+        <origin xyz="0 0.06 0" rpy="0 0 0" />
+    </joint>
+    <joint name="zed_depth_camera_joint" type="fixed">
+        <parent link="zed_left_camera"/>
+        <child link="zed_depth_camera"/>
+        <origin xyz="0 0 0" rpy="-1.5707963267948966 0 -1.5707963267948966" />
+    </joint>
+
+    <joint name="zed_right_camera_joint" type="fixed">
+        <parent link="zed_center"/>
+        <child link="zed_right_camera"/>
+        <origin xyz="0 -0.06 0" rpy="0 0 0" />
+    </joint>
+
+    <joint name="zed_center_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="zed_center"/>
+      <origin xyz="0 0 0.3" rpy="${-M_PI/2} 0 0"/>
+    </joint>
   
 
   <!-- WHEELs -->

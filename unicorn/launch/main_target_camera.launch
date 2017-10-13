@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<launch>
 
 <!-- roslaunch arguments -->
 <arg name="use_teb_planner" default="true"/>
@@ -16,8 +15,8 @@
 <param name="use_gui" value="false"/> 
 
 <!-- Lidar angle limitations (rad) -->
-<rosparam param="scan_lower_angle">-1.48</rosparam>
-<rosparam param="scan_upper_angle">1.48</rosparam>
+<rosparam param="lower_angle">-1.28</rosparam>
+<rosparam param="upper_angle">1.28</rosparam>
 
 <group if="$(arg use_gmapping)">
 
@@ -42,10 +41,14 @@
 
 <!-- Run zed camera -->
 <group ns="zed">
-	<include file="$(find zed_wrapper)/launch/zed_camera.launch">
-		<!-- compliant mode for rviz -->
-		<arg name="odometry_frame" value="odom" />
-	</include>
+    <include file="$(find zed_wrapper)/launch/zed_camera.launch">
+        <arg name="publish_tf" value="false"/>
+        <arg name="publish_urdf" value="false"/>
+        <arg name="odometry_frame" value="odom"/>
+        <arg name="base_frame" value="zed_center"/>
+        <arg name="camera_frame" value="zed_left_camera"/>
+        <arg name="depth_frame" value="zed_depth_camera"/>
+    </include>
 </group>
 
 <!-- load joint controller configurations from YAML file to parameter server -->
@@ -67,8 +70,8 @@
 	<param name="serialPort" value="/dev/ttyACM0" type="str" />
 	<param name="printCharge" value="false"/>
 	<param name="publishTf" value="1"/>
-	<param name="pitchAndRoll" value="true"/>
-	<param name="publishGPS" value="true"/>
+	<param name="pitchAndRoll" value="false"/>
+	<param name="publishGPS" value="false"/>
 	<param name="serialLog" value="false"/>
 	<param name="hil" value="0"/>
 	<param name="jsonFile" value="$(find am_driver_safe)/config/automower_hrp.json" type="string" />
@@ -106,10 +109,6 @@
 </node>
 
 <!-- <node name="initialpose_publisher" pkg="unicorn" type="pub_initialpose"/> -->
-
-<!-- Lidar angle limitations (rad) -->
-<rosparam param="lower_angle">-1.48</rosparam>
-<rosparam param="upper_angle">1.48</rosparam>
 
 <!-- Starts laser filter to enable limitation of laserscan angle -->
 <node name="laser_filter" pkg="unicorn" type="laser_scan_filter" output="screen"/>
