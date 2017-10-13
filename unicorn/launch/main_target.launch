@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <launch>
 
 <!-- roslaunch arguments -->
@@ -22,8 +23,8 @@
 
 	<!-- Launch grid-mapping -->
 	<node pkg="gmapping" type="slam_gmapping" name="slam_gmapping">
-	   	<rosparam file="$(find unicorn_slam)/config/gmapping_default.yaml"/>
-	   	<remap from="scan" to="$(arg scan_topic)"/>
+		<rosparam file="$(find unicorn_slam)/config/gmapping_default.yaml"/>
+		<remap from="scan" to="$(arg scan_topic)"/>
 	</node>
 </group>
 
@@ -34,17 +35,17 @@
 
 	<!--- Run AMCL -->
 	<node pkg="amcl" type="amcl" name="amcl" output="screen">
-	  <rosparam command="load" file="$(find unicorn_slam)/config/amcl.yaml"/>
-	  <remap from="scan" to="$(arg scan_topic)"/>
+		<rosparam command="load" file="$(find unicorn_slam)/config/amcl.yaml"/>
+		<remap from="scan" to="$(arg scan_topic)"/>
 	</node>
 </group>
 
 <!-- Run zed camera -->
 <group ns="zed">
-    <include file="$(find zed_wrapper)/launch/zed_camera.launch">
-        <!-- compliant mode for rviz -->
-        <arg name="odometry_frame" value="odom" />
-    </include>
+	<include file="$(find zed_wrapper)/launch/zed_camera.launch">
+		<!-- compliant mode for rviz -->
+		<arg name="odometry_frame" value="odom" />
+	</include>
 </group>
 
 <!-- load joint controller configurations from YAML file to parameter server -->
@@ -80,19 +81,19 @@
 </node>
 
 <group if="$(arg use_teb_planner)">
-    <rosparam file="$(find unicorn_description)/config/base_local_planner_teb.yaml" command="load" />
-    <param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
-    <param name="controller_frequency" value="10.0" /> 
-  </group>
-  <group unless="$(arg use_teb_planner)">
-    <rosparam file="$(find unicorn)/config/base_local_planner_params.yaml" command="load" />
-  </group>
+	<rosparam file="$(find unicorn_description)/config/base_local_planner_teb.yaml" command="load" />
+	<param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
+	<param name="controller_frequency" value="10.0" /> 
+</group>
+<group unless="$(arg use_teb_planner)">
+	<rosparam file="$(find unicorn)/config/base_local_planner_params.yaml" command="load" />
+</group>
 <!-- Launch Move Base -->
 <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-  <rosparam file="$(find unicorn)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
-  <rosparam file="$(find unicorn)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
-  <rosparam file="$(find unicorn)/config/local_costmap_params.yaml" command="load" />
-  <rosparam file="$(find unicorn)/config/global_costmap_params.yaml" command="load" />
+	<rosparam file="$(find unicorn)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+	<rosparam file="$(find unicorn)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+	<rosparam file="$(find unicorn)/config/local_costmap_params.yaml" command="load" />
+	<rosparam file="$(find unicorn)/config/global_costmap_params.yaml" command="load" />
 </node>
 
 <!-- source that publishes the joint positions as a sensor_msgs/JointState -->
