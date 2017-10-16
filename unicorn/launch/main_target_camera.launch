@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<launch>
 <!-- roslaunch arguments -->
 <arg name="use_teb_planner" default="true"/>
 <arg name="backward_drive" default="false"/>
 <arg name="paused" default="false"/>
-<arg name="debug" default="false"/>  
+<arg name="debug" default="false"/>
 <arg name="gazebo_gui" default="false"/>
 <arg name="use_gmapping" default="true"/>
 <arg name="scan_topic" value="scan_filtered"/>
@@ -12,7 +12,7 @@
 <arg name="lidar_ip" default="192.168.0.100" />
 
 <!-- Joint pos gui -->
-<param name="use_gui" value="false"/> 
+<param name="use_gui" value="false"/>
 
 <!-- Lidar angle limitations (rad) -->
 <rosparam param="lower_angle">-1.28</rosparam>
@@ -45,11 +45,26 @@
         <arg name="publish_tf" value="false"/>
         <arg name="publish_urdf" value="false"/>
         <arg name="odometry_frame" value="odom"/>
-        <arg name="base_frame" value="zed_center"/>
+        <arg name="base_frame" value="base_link"/>
         <arg name="camera_frame" value="zed_left_camera"/>
         <arg name="depth_frame" value="zed_depth_camera"/>
     </include>
 </group>
+
+<!-- Visual Odom -->
+<!-- Odometry : ONLY for testing without the actual robot! /odom TF should not be already published. -->
+<!-- <group ns="rtabmap">
+	<node pkg="rtabmap_ros" type="rgbd_odometry" name="rgbd_odometry" output="screen">
+	  <param name="frame_id"                    type="string" value="base_link"/>
+	  <param name="wait_for_transform_duration" type="double" value="5"/>
+	  <param name="Reg/Force3DoF"               type="string" value="true"/>
+	  <param name="Vis/InlierDistance"          type="string" value="0.05"/>
+	  
+	  <remap from="rgb/image"       to="zed/rgb/image_rect_color"/>
+	  <remap from="depth/image"     to="zed/depth_registered/image_raw"/>
+	  <remap from="rgb/camera_info" to="zed/rgb/camera_info"/>
+	</node>
+</group> -->
 
 <!-- load joint controller configurations from YAML file to parameter server -->
 <rosparam file="$(find am_control)/config/joint_position_control.yaml" command="load" />
