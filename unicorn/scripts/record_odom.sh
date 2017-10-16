@@ -1,2 +1,2 @@
 #!/bin/bash
-rosbag record /odom /zed/odom /tf 
+rosbag record /odom /zed/odom /tf /map

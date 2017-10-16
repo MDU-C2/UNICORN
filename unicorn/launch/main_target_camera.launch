@@ -45,7 +45,7 @@
         <arg name="publish_tf" value="false"/>
         <arg name="publish_urdf" value="false"/>
         <arg name="odometry_frame" value="odom"/>
-        <arg name="base_frame" value="base_link"/>
+        <arg name="base_frame" value="zed_center"/>
         <arg name="camera_frame" value="zed_left_camera"/>
         <arg name="depth_frame" value="zed_depth_camera"/>
     </include>
@@ -99,7 +99,7 @@
 </node>
 
 <group if="$(arg use_teb_planner)">
-	<rosparam file="$(find unicorn_description)/config/base_local_planner_teb.yaml" command="load" />
+	<rosparam file="$(find unicorn)/config/base_local_planner_teb.yaml" command="load" />
 	<param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
 	<param name="controller_frequency" value="10.0" /> 
 </group>

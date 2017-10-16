@@ -5,7 +5,7 @@
   <property name="M_PI" value="3.1415926535897931" />
 
   <xacro:arg name="laser_enabled" default="true" />
-  <xacro:arg name="laser_xyz" default="0.3206 0.0 0.310" />
+  <xacro:arg name="laser_xyz" default="0 0.0 0.310" />
   <xacro:arg name="laser_rpy" default="0.0 0.0 0.0" />
   <xacro:arg name="robot_namespace" default="/" />
 
@@ -37,7 +37,7 @@
     name="base_link">
     <inertial>
       <origin
-        xyz="0.17 0 -0.10"
+        xyz="0 0 -0.10"
         rpy="0 0 0" />
       <mass
         value="${base_mass}" />
@@ -45,7 +45,7 @@
     </inertial>
     <visual>
       <origin
-        xyz="-0.17 0 0"
+        xyz="0 0 0"
         rpy="0 0 0" />
       <geometry>
         <mesh
@@ -59,7 +59,7 @@
     </visual>
     <collision>
       <origin
-        xyz="-0.17 0 0.08"
+        xyz="0 0 0.08"
         rpy="0 0 0" />
       <geometry>
         <!-- <mesh
@@ -101,7 +101,7 @@
             </material>
         </visual>
     </link>
-    <link name="zed_right_camera">
+    <!-- <link name="zed_right_camera">
         <visual>
             <origin xyz="0 0 0" rpy="0 1.57 0"/>
             <geometry>
@@ -111,7 +111,7 @@
                 <color rgba="0.1 0.1 0.1 1"/>
             </material>
         </visual>
-    </link>
+    </link> -->
     <link name="zed_depth_camera" />
 
     <joint name="zed_left_camera_joint" type="fixed">
@@ -125,16 +125,16 @@
         <origin xyz="0 0 0" rpy="-1.5707963267948966 0 -1.5707963267948966" />
     </joint>
 
-    <joint name="zed_right_camera_joint" type="fixed">
+   <!--  <joint name="zed_right_camera_joint" type="fixed">
         <parent link="zed_center"/>
         <child link="zed_right_camera"/>
         <origin xyz="0 -0.06 0" rpy="0 0 0" />
-    </joint>
+    </joint> -->
 
-    <joint name="zed_center_joint" type="fixed">
+    <joint name="base_link_joint" type="fixed">
       <parent link="base_link"/>
       <child link="zed_center"/>
-      <origin xyz="0 0 0.3" rpy="${-M_PI/2} 0 0"/>
+      <origin xyz="0 0 0.3" rpy="0 0 0"/>
     </joint>
   
 
