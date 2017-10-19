@@ -1,2 +1,2 @@
 #!/bin/bash
-rosbag record /odom /zed/odom /tf /map
+rosbag record /odom /zed/odom /tf /map /amcl_pose

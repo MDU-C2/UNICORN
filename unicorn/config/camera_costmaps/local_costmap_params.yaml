@@ -2,6 +2,11 @@
 
 local_costmap:
   #We'll publish the voxel grid used by this costmap
+  plugins:
+    - {name: obstacle_layer,  type: "costmap_2d::ObstacleLayer"}
+    # - {name: voxel_layer, type: "costmap_2d::VoxelLayer"}
+    - {name: inflation_layer,   type: "costmap_2d::InflationLayer"}
+
   publish_voxel_map: true
 
   #Set the global and robot frames for the costmap
@@ -9,8 +14,8 @@ local_costmap:
   robot_base_frame: base_link
 
   #Set the update and publish frequency of the costmap
-  update_frequency: 30.0
-  publish_frequency: 20.0
+  update_frequency: 10.0
+  publish_frequency: 5.0
 
   #We'll configure this costmap to be a rolling window... meaning it is always
   #centered at the robot
@@ -23,5 +28,5 @@ local_costmap:
   origin_y: 0.0
 
   inflation_layer:
-    inflation_radius: 3
-    cost_scaling_factor: 0.5
+    inflation_radius: 0.55
+    cost_scaling_factor: 5.0

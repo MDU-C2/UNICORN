@@ -8,7 +8,7 @@
 <arg name="gazebo_gui" default="false"/>
 <arg name="use_gmapping" default="true"/>
 <arg name="scan_topic" value="scan_filtered"/>
-<arg name="map_file" value="$(find unicorn_slam)/maps/unicorn_corridor.yaml"/>
+<arg name="map_file" value="$(find unicorn_slam)/maps/unicorn_map.yaml"/>
 <arg name="lidar_ip" default="192.168.0.100" />
 
 <!-- Joint pos gui -->
@@ -51,20 +51,36 @@
     </include>
 </group>
 
+<!-- Run a VoxelGrid filter to clean NaNs and downsample the pointcloud output goes to cloud_filtered -->
+<node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen" />
+<node pkg="nodelet" type="nodelet" name="voxel_grid" args="load pcl/VoxelGrid pcl_manager" output="screen">
+<remap from="~input" to="/zed/point_cloud/cloud_registered" />
+<remap from="~output" to="cloud_filtered" />
+<rosparam>
+ filter_field_name: z
+ filter_limit_min: 0.1
+ filter_limit_max: 1.5
+ filter_limit_negative: False
+ leaf_size: 0.02
+</rosparam>
+</node>
+
+
 <!-- Visual Odom -->
 <!-- Odometry : ONLY for testing without the actual robot! /odom TF should not be already published. -->
 <!-- <group ns="rtabmap">
 	<node pkg="rtabmap_ros" type="rgbd_odometry" name="rgbd_odometry" output="screen">
-	  <param name="frame_id"                    type="string" value="base_link"/>
+	  <param name="frame_id"                    type="string" value="zed_center"/>
 	  <param name="wait_for_transform_duration" type="double" value="5"/>
 	  <param name="Reg/Force3DoF"               type="string" value="true"/>
 	  <param name="Vis/InlierDistance"          type="string" value="0.05"/>
 	  
-	  <remap from="rgb/image"       to="zed/rgb/image_rect_color"/>
-	  <remap from="depth/image"     to="zed/depth_registered/image_raw"/>
-	  <remap from="rgb/camera_info" to="zed/rgb/camera_info"/>
+	  
 	</node>
-</group> -->
+</group>
+<remap from="/rtabmap/rgb/image"       to="/zed/rgb/image_rect_color"/>
+<remap from="/rtabmap/depth/image"     to="/zed/depth/depth_registered"/>
+<remap from="/rtabmap/rgb/camera_info" to="/zed/rgb/camera_info"/> -->
 
 <!-- load joint controller configurations from YAML file to parameter server -->
 <rosparam file="$(find am_control)/config/joint_position_control.yaml" command="load" />

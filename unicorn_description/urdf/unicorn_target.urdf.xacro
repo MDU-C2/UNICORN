@@ -37,7 +37,7 @@
     name="base_link">
     <inertial>
       <origin
-        xyz="0 0 -0.10"
+        xyz="0 0 0"
         rpy="0 0 0" />
       <mass
         value="${base_mass}" />
