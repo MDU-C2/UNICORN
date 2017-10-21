@@ -32,10 +32,10 @@
   <xacro:include filename="$(find am_description)/urdf/materials.urdf.xacro" />
 
   <link 
-    name="chassis_link">
+    name="base_link">
     <inertial>
       <origin
-        xyz="0.17 0 -0.10"
+        xyz="0 0 0"
         rpy="0 0 0" />
       <mass
         value="${base_mass}" />
@@ -72,7 +72,7 @@
     </collision>
   </link>
   <link
-    name="base_link">
+    name="chassis_link">
     <inertial>
       <origin
         xyz="0.17 0 0"
@@ -110,21 +110,79 @@
       </surface> -->
     </collision>
   </link>
-  <gazebo reference="base_link">
+  <gazebo reference="base_link_gazebo">
     <material>Gazebo/Green</material>
     <turnGravityOff>false</turnGravityOff>
   </gazebo>
-  <joint name="base_link_joint" type="fixed">
-    <parent link="chassis_link"/>
-    <child link="base_link" />
+  <joint name="base_chassis_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="chassis_link" />
   <origin xyz="0 0.0 0" rpy="0 0 ${M_PI}" />
   </joint>
 
-  <wheel fb="back" lr="right" parent="base_link" translateY="-0.24" translateX="0.0" translateZ="-0.006" wheel_radius="0.1225" wheel_height="0.032" flip="1"/>
-  <wheel fb="back" lr="left" parent="base_link" translateY="0.24" translateX="0.0" translateZ="-0.006" wheel_radius="0.1225" wheel_height="0.032" flip="1"/>
+  <link name="zed_left_camera">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 1.57 0"/>
+            <geometry>
+                <cylinder radius="0.007" length=".031"/>
+            </geometry>
+            <material name="dark_grey">
+                <color rgba="0.1 0.1 0.1 1"/>
+            </material>
+        </visual>
+    </link>
+    <link name="zed_center">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <mesh filename="package://zed_wrapper/urdf/ZED.stl" />
+            </geometry>
+            <material name="light_grey">
+                <color rgba="0.8 0.8 0.8 0.8"/>
+            </material>
+        </visual>
+    </link>
+    <!-- <link name="zed_right_camera">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 1.57 0"/>
+            <geometry>
+                <cylinder radius="0.007" length=".031"/>
+            </geometry>
+            <material name="dark_grey">
+                <color rgba="0.1 0.1 0.1 1"/>
+            </material>
+        </visual>
+    </link> -->
+    <link name="zed_depth_camera" />
 
-  <swivel_wheel fb="front" lr="right" parent="base_link" translateY="-0.16" translateX="0.355" translateZ="0.03" wheel_radius="0.05" wheel_height="0.05" flip="0"/>
-  <swivel_wheel fb="front" lr="left" parent="base_link" translateY="0.16" translateX="0.355" translateZ="0.03" wheel_radius="0.05" wheel_height="0.05" flip="0"/>
+    <joint name="zed_left_camera_joint" type="fixed">
+        <parent link="zed_center"/>
+        <child link="zed_left_camera"/>
+        <origin xyz="0 0.06 0" rpy="0 0 0" />
+    </joint>
+    <joint name="zed_depth_camera_joint" type="fixed">
+        <parent link="zed_left_camera"/>
+        <child link="zed_depth_camera"/>
+        <origin xyz="0 0 0" rpy="-1.5707963267948966 0 -1.5707963267948966" />
+    </joint>
+
+   <!--  <joint name="zed_right_camera_joint" type="fixed">
+        <parent link="zed_center"/>
+        <child link="zed_right_camera"/>
+        <origin xyz="0 -0.06 0" rpy="0 0 0" />
+    </joint> -->
+
+    <joint name="chassis_zed_joint" type="fixed">
+      <parent link="chassis_link"/>
+      <child link="zed_center"/>
+      <origin xyz="0 0 0.3" rpy="0 0 0"/>
+    </joint>
+
+  <wheel fb="back" lr="right" parent="chassis_link" translateY="-0.24" translateX="0.0" translateZ="-0.006" wheel_radius="0.1225" wheel_height="0.032" flip="1"/>
+  <wheel fb="back" lr="left" parent="chassis_link" translateY="0.24" translateX="0.0" translateZ="-0.006" wheel_radius="0.1225" wheel_height="0.032" flip="1"/>
+
+  <swivel_wheel fb="front" lr="right" parent="chassis_link" translateY="-0.16" translateX="0.355" translateZ="0.03" wheel_radius="0.05" wheel_height="0.05" flip="0"/>
+  <swivel_wheel fb="front" lr="left" parent="chassis_link" translateY="0.16" translateX="0.355" translateZ="0.03" wheel_radius="0.05" wheel_height="0.05" flip="0"/>
 
   <!-- LOOP SENSORs -->
   <!-- <sensorpos name="loop_front_center" parent="base_link" translateX="0.38" translateY="0.0" translateZ="-0.04"/>
@@ -188,7 +246,7 @@
 
     <joint name="laser_mount_joint" type="fixed">
       <origin xyz="$(arg laser_xyz)" rpy="$(arg laser_rpy)" />
-      <parent link="base_link" />
+      <parent link="chassis_link" />
       <child link="base_laser" />
     </joint>
 

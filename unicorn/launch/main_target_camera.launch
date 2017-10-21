@@ -2,13 +2,11 @@
 <launch>
 <!-- roslaunch arguments -->
 <arg name="use_teb_planner" default="true"/>
-<arg name="backward_drive" default="false"/>
-<arg name="paused" default="false"/>
+<arg name="backward_drive" default="true"/>
 <arg name="debug" default="false"/>
-<arg name="gazebo_gui" default="false"/>
-<arg name="use_gmapping" default="true"/>
+<arg name="use_gmapping" default="false"/>
 <arg name="scan_topic" value="scan_filtered"/>
-<arg name="map_file" value="$(find unicorn_slam)/maps/unicorn_map.yaml"/>
+<arg name="map_file" value="$(find unicorn_slam)/maps/work_room.yaml"/>
 <arg name="lidar_ip" default="192.168.0.100" />
 
 <!-- Joint pos gui -->
@@ -25,6 +23,7 @@
 		<rosparam file="$(find unicorn_slam)/config/gmapping_default.yaml"/>
 		<remap from="scan" to="$(arg scan_topic)"/>
 	</node>
+	
 </group>
 
 <group unless="$(arg use_gmapping)">
@@ -65,23 +64,6 @@
 </rosparam>
 </node>
 
-
-<!-- Visual Odom -->
-<!-- Odometry : ONLY for testing without the actual robot! /odom TF should not be already published. -->
-<!-- <group ns="rtabmap">
-	<node pkg="rtabmap_ros" type="rgbd_odometry" name="rgbd_odometry" output="screen">
-	  <param name="frame_id"                    type="string" value="zed_center"/>
-	  <param name="wait_for_transform_duration" type="double" value="5"/>
-	  <param name="Reg/Force3DoF"               type="string" value="true"/>
-	  <param name="Vis/InlierDistance"          type="string" value="0.05"/>
-	  
-	  
-	</node>
-</group>
-<remap from="/rtabmap/rgb/image"       to="/zed/rgb/image_rect_color"/>
-<remap from="/rtabmap/depth/image"     to="/zed/depth/depth_registered"/>
-<remap from="/rtabmap/rgb/camera_info" to="/zed/rgb/camera_info"/> -->
-
 <!-- load joint controller configurations from YAML file to parameter server -->
 <rosparam file="$(find am_control)/config/joint_position_control.yaml" command="load" />
 
@@ -91,7 +73,6 @@
 </group>
 <group if="$(arg backward_drive)">
 	<param name="robot_description" command="$(find xacro)/xacro.py '$(find unicorn_description)/urdf/unicorn_target_2.urdf.xacro'" />
-	<remap from="cmd_vel" to="/unicorn/cmd_vel"/>
 	<!-- Starts interface between automower and unicorn to enable backward driving -->
 	<node name="am_unicorn_interface" pkg="unicorn" type="am_unicorn_interface" output="screen"/>
 </group>
@@ -128,8 +109,11 @@
 	<rosparam file="$(find unicorn)/config/camera_costmaps/costmap_common_params.yaml" command="load" ns="local_costmap" />
 	<rosparam file="$(find unicorn)/config/camera_costmaps/local_costmap_params.yaml" command="load" />
 	<rosparam file="$(find unicorn)/config/camera_costmaps/global_costmap_params.yaml" command="load" />
-</node>
 
+</node>
+<group if="$(arg backward_drive)">
+	<remap from="cmd_vel" to="/unicorn/cmd_vel"/>
+</group>
 <!-- source that publishes the joint positions as a sensor_msgs/JointState -->
 <param name="use_gui" value="false"/>
 <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />

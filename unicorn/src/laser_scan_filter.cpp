@@ -60,14 +60,17 @@ void LaserFilter::scanCallback(const sensor_msgs::LaserScan& input_scan)
   unsigned int count = 0;
 
   //loop through the scan and truncate the beginning and the end of the scan as necessary
-  for (unsigned int i = 0; i < input_scan.ranges.size(); ++i){
+  for (unsigned int i = 0; i < input_scan.ranges.size(); ++i)
+  {
     //wait until we get to our desired starting angle
-    if(start_angle < lower_angle_) {
+    if(start_angle < lower_angle_) 
+    {
       start_angle += input_scan.angle_increment;
       current_angle += input_scan.angle_increment;
       start_time += ros::Duration(input_scan.time_increment);
     }
-    else {
+    else 
+    {
       scan_.ranges[count] = input_scan.ranges[i];
 
       //make sure  that we don't update intensity data if its not available
@@ -75,7 +78,8 @@ void LaserFilter::scanCallback(const sensor_msgs::LaserScan& input_scan)
         scan_.intensities[count] = input_scan.intensities[i];
         count++;
         //check if we need to break out of the loop, basically if the next increment will put us over the threshold
-        if (current_angle + input_scan.angle_increment > upper_angle_) {
+        if (current_angle + input_scan.angle_increment > upper_angle_) 
+        {
           break;
         }
       current_angle += input_scan.angle_increment;
@@ -98,7 +102,9 @@ void LaserFilter::scanCallback(const sensor_msgs::LaserScan& input_scan)
   scan_.ranges.resize(count);
 
   if (input_scan.intensities.size() >= count)
+  {
     scan_.intensities.resize(count);
+  }
 
-  ROS_DEBUG("Filtered out %d points from the laser scan.", (int)input_scan.ranges.size() - (int)count);
+  // ROS_DEBUG("Filtered out %d points from the laser scan.", (int)input_scan.ranges.size() - (int)count);
 }
