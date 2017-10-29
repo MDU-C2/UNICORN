@@ -1,6 +1,6 @@
 # Overall filter parameters
-min_particles:        500     # 100,500
-max_particles:        2000     # 5000
+min_particles:        500      # 100,500
+max_particles:        5000     # 5000
 kld_err:              0.05      # 0.01, 0.05
 kld_z:                0.99      # 0.99
 update_min_d:         0.1       # 0.2
@@ -12,9 +12,9 @@ recovery_alpha_fast:  0.1       # 0.0, 0.0, 0.1
 initial_pose_x:       0.0       # 0.0
 initial_pose_y:       0.0       # 0.0 
 initial_pose_a:       0.0       # 0.0
-initial_cov_xx:       0.25      # 0.25
-initial_cov_yy:       0.25      # 0.25
-initial_cov_aa:       0.06853   # 0.06853 
+initial_cov_xx:       5.25      # 0.25
+initial_cov_yy:       5.25      # 0.25
+initial_cov_aa:       2.56853   # 0.06853 
 gui_publish_rate:     10.0      # -1.0, 10
 save_pose_rate:       0.5       # 0.5
 use_map_topic:        true      # false
@@ -22,8 +22,8 @@ first_map_only:       false     # false
 
 # Laser Model Parameters 
 laser_min_range:            -1.0   # -1.0
-laser_max_range:            20.0   # -1.0
-laser_max_beams:            60    # 180
+laser_max_range:            19.0   # -1.0
+laser_max_beams:            180    # 180
 laser_z_hit:                0.5   # 0.95, 0.5
 laser_z_short:              0.05    # 0.1,  0.05
 laser_z_max:                0.05   # 0.05 
@@ -35,7 +35,7 @@ laser_model_type:           likelihood_field
 
 # Odometery model parameters
 odom_model_type:  diff
-odom_alpha1:      0.1   # 0.2 rr
+odom_alpha1:      1.5   # 0.2 rr
 odom_alpha2:      0.25   # 0.2 rt
 odom_alpha3:      0.6    # 0.2,0.8 tt
 odom_alpha4:      0.25   # 0.2 tr

@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <launch>
 <!-- roslaunch arguments -->
-<arg name="use_teb_planner" default="true"/>
-<arg name="backward_drive" default="true"/>
 <arg name="debug" default="false"/>
 <arg name="use_gmapping" default="false"/>
 <arg name="scan_topic" value="scan_filtered"/>
-<arg name="map_file" value="$(find unicorn_slam)/maps/work_room.yaml"/>
+<arg name="map_file" value="$(find unicorn_slam)/maps/hospital_map_3.yaml"/>
 <arg name="lidar_ip" default="192.168.0.100" />
 
 <!-- Joint pos gui -->
 <param name="use_gui" value="false"/>
 
 <!-- Lidar angle limitations (rad) -->
-<rosparam param="lower_angle">-1.28</rosparam>
-<rosparam param="upper_angle">1.28</rosparam>
+<rosparam param="lower_angle">-1.57</rosparam>
+<rosparam param="upper_angle">1.57</rosparam>
 
 <group if="$(arg use_gmapping)">
 
@@ -27,7 +25,7 @@
 </group>
 
 <group unless="$(arg use_gmapping)">
-
+	<rosparam param="global_local">true</rosparam>
 	<!-- Run the map server -->
 	<node pkg="map_server" type="map_server" args="$(arg map_file)" respawn="true" name="map" />
 
@@ -36,6 +34,8 @@
 		<rosparam command="load" file="$(find unicorn_slam)/config/amcl.yaml"/>
 		<remap from="scan" to="$(arg scan_topic)"/>
 	</node>
+
+	
 </group>
 
 <!-- Run zed camera -->
@@ -68,14 +68,14 @@
 <rosparam file="$(find am_control)/config/joint_position_control.yaml" command="load" />
 
 <!-- Urdf xml robot description loaded on the Parameter Server-->
-<group unless="$(arg backward_drive)">
-	<param name="robot_description" command="$(find xacro)/xacro.py '$(find unicorn_description)/urdf/unicorn_target.urdf.xacro'" />
-</group>
-<group if="$(arg backward_drive)">
-	<param name="robot_description" command="$(find xacro)/xacro.py '$(find unicorn_description)/urdf/unicorn_target_2.urdf.xacro'" />
-	<!-- Starts interface between automower and unicorn to enable backward driving -->
-	<node name="am_unicorn_interface" pkg="unicorn" type="am_unicorn_interface" output="screen"/>
-</group>
+<param name="robot_description" command="$(find xacro)/xacro.py '$(find unicorn_description)/urdf/unicorn_target_2.urdf.xacro'" />
+<!-- Starts interface between automower and unicorn to enable backward driving -->
+<node name="am_unicorn_interface" 
+	pkg="unicorn" 
+	type="am_unicorn_interface" 
+	output="screen">
+</node>
+
 
 <!-- Start the am_driver -->
 <node name="am_driver_safe" pkg="am_driver_safe" type="am_driver_safe_node" output="screen">
@@ -95,25 +95,19 @@
 	<param name="frame_id" value="base_laser"/>
 </node>
 
-<group if="$(arg use_teb_planner)">
-	<rosparam file="$(find unicorn)/config/base_local_planner_teb.yaml" command="load" />
-	<param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
-	<param name="controller_frequency" value="10.0" /> 
-</group>
-<group unless="$(arg use_teb_planner)">
-	<rosparam file="$(find unicorn)/config/camera_costmaps/base_local_planner_params.yaml" command="load" />
-</group>
 <!-- Launch Move Base -->
 <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+	<param name="base_global_planner" value="navfn/NavfnROS"/>
+	<!-- <param name="base_global_planner" value="global_planner/GlobalPlanner"/> -->
+	<param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
+	<param name="controller_frequency" value="10.0" />
+	<rosparam file="$(find unicorn)/config/base_local_planner_teb.yaml" command="load" />
 	<rosparam file="$(find unicorn)/config/camera_costmaps/costmap_common_params.yaml" command="load" ns="global_costmap" />
 	<rosparam file="$(find unicorn)/config/camera_costmaps/costmap_common_params.yaml" command="load" ns="local_costmap" />
 	<rosparam file="$(find unicorn)/config/camera_costmaps/local_costmap_params.yaml" command="load" />
 	<rosparam file="$(find unicorn)/config/camera_costmaps/global_costmap_params.yaml" command="load" />
-
-</node>
-<group if="$(arg backward_drive)">
 	<remap from="cmd_vel" to="/unicorn/cmd_vel"/>
-</group>
+</node>
 <!-- source that publishes the joint positions as a sensor_msgs/JointState -->
 <param name="use_gui" value="false"/>
 <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
@@ -127,5 +121,7 @@
 
 <!-- Starts laser filter to enable limitation of laserscan angle -->
 <node name="laser_filter" pkg="unicorn" type="laser_scan_filter" output="screen"/>
+
+
 
 </launch>

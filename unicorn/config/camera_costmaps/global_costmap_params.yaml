@@ -2,6 +2,9 @@
 
 global_costmap:
   #Set the global and robot frames for the costmap
+  # plugins:
+    # - {name: inflation_layer,   type: "costmap_2d::InflationLayer"}
+  
   global_frame: /map
   robot_base_frame: base_link
 
@@ -15,5 +18,5 @@ global_costmap:
   resolution: 0.1
 
   inflation_layer:
-    inflation_radius: 2.5
+    inflation_radius: 0.8
     cost_scaling_factor: 5.0
