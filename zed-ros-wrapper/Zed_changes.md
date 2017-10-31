@@ -1,4 +1,4 @@
-# zed-ros-wrappe changes
+# zed-ros-wrapper changes
 
 Added a function called `publishPointCloudDivided` in the zed_wrapper_nodelet.cpp this does the same thing as `publishPointCloud` but skips a number of specified points between each used point instead of creating a point cloud containing every point.
 
