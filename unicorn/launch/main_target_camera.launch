@@ -123,5 +123,9 @@
 <node name="laser_filter" pkg="unicorn" type="laser_scan_filter" output="screen"/>
 
 
+<node pkg="robot_localization" type="ukf_localization_node" name="ukf_se" clear_params="true">
+   <rosparam command="load" file="$(find unicorn)/config/ukf_template.yaml" />
+</node>
+
 
 </launch>
