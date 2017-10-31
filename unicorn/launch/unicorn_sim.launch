@@ -7,7 +7,7 @@
 	<arg name="show_rviz" default="true"/>
 	<arg name="paused" default="false"/>
 	<arg name="debug" default="false"/>  
-	<arg name="gazebo_gui" default="false"/>
+	<arg name="gazebo_gui" default="true"/>
 	<arg name="use_gmapping" default="false"/>
 	<arg name="scan_topic" value="scan_filtered"/>
 	<arg name="map_file" value="$(find unicorn_slam)/maps/gmap_map.yaml"/>
@@ -37,17 +37,21 @@
 			<remap from="scan" to="$(arg scan_topic)"/>
 		</node>
 	</group>
-	<!-- <include file="$(find husky_navigation)/launch/move_base.launch"/> -->
-	<group if="$(arg use_teb_planner)">
+	<!-- <group if="$(arg use_teb_planner)">
 		<rosparam file="$(find unicorn_description)/config/base_local_planner_teb.yaml" command="load" />
 		<param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
 		<param name="controller_frequency" value="20.0" /> 
 	</group>
 	<group unless="$(arg use_teb_planner)">
 		<rosparam file="$(find unicorn_description)/config/base_local_planner_params.yaml" command="load" />
-	</group>
+	</group> -->
 	<!-- Launch move_base -->
-	<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">		
+	<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+		<rosparam file="$(find unicorn_description)/config/base_local_planner_teb.yaml" command="load" />
+		<param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
+		<param name="base_global_planner" value="navfn/NavfnROS"/>
+		<!-- <param name="base_global_planner" value="global_planner/GlobalPlanner"/> -->
+		<param name="controller_frequency" value="10.0" /> 
 		<rosparam file="$(find unicorn_description)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
 		<rosparam file="$(find unicorn_description)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
 		<rosparam file="$(find unicorn_description)/config/local_costmap_params.yaml" command="load" />

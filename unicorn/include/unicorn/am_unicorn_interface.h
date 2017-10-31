@@ -1,24 +1,26 @@
 #ifndef AM_UNICORN_INTERFACE_H
 #define AM_UNICORN_INTERFACE_H
+
+/* ROS */
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
 #include <tf/tf.h>
 #include <nav_msgs/Odometry.h>
-#include <std_srvs/Empty.h>
+
+/* C / C++ */
 #include <iostream>
+#include <termios.h>
 
 class AmUnicornInterface
 {
 public:
 	AmUnicornInterface();
 	void cmdVelCallback(const geometry_msgs::Twist& cmd_vel);
-	void globalLocalization();
 	void publishCmd();
 private:
 	ros::NodeHandle n_;
 	geometry_msgs::Twist unicorn_cmd_vel_;
 	ros::Subscriber cmd_vel_sub_;
-	ros::ServiceClient amcl_global_clt_;
 	ros::Publisher unicorn_cmd_vel_pub_;
 };
 #endif
