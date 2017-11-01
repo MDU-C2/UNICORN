@@ -41,6 +41,7 @@ public:
 	void processKey(int c);
 	void printUsage();
 	void active();
+	std::string stateToString(int state);
 	void odomCallback(const nav_msgs::Odometry& msg);
 private:
 	ros::NodeHandle n_;
@@ -50,7 +51,7 @@ private:
 	ros::Subscriber odom_sub_;
 	geometry_msgs::Twist man_cmd_vel_;
 
-	int state, flag, loading_state;
+	int state_, flag, loading_state_;
 	double current_yaw_, target_yaw_;
 	double x_vel_;
 	double MAX_ANGULAR_VEL;

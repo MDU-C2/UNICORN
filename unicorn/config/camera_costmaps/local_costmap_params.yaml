@@ -28,5 +28,5 @@ local_costmap:
   origin_y: 0.0
 
   inflation_layer:
-    inflation_radius: 0.7
+    inflation_radius: 0.6
     cost_scaling_factor: 5.0

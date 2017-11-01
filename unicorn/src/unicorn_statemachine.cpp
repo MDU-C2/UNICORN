@@ -15,6 +15,7 @@ int main(int argc, char **argv)
 	}
 	return 0;
 }
+
 UnicornState::UnicornState()
 {
   bool run_global_loc;
@@ -47,7 +48,7 @@ UnicornState::UnicornState()
 
   if (n_.getParam("odometry_topic", odom_topic))
   {
-  	/* code */
+  	ROS_INFO("[unicorn_statemachine] Listening to %s", odom_topic.c_str());
   }
   else
   {
@@ -59,6 +60,8 @@ UnicornState::UnicornState()
   cmd_vel_pub_ = n_.advertise<geometry_msgs::Twist>("/unicorn/cmd_vel", 0);
   odom_sub_ = n_.subscribe(odom_topic.c_str(), 0, &UnicornState::odomCallback, this);
 
+  state_ = current_state::MANUAL;
+  loading_state_ = current_state::ALIGNING;
 }
 void UnicornState::globalLocalization()
 {
@@ -90,6 +93,27 @@ int UnicornState::getCharacter()
   return c;
 }
 
+std::string UnicornState::stateToString(int state)
+{
+	switch(state)
+	{
+		case current_state::AUTONOMOUS:
+		return "AUTONOMOUS";
+
+		case current_state::MANUAL:
+		return "MANUAL";
+
+		case current_state::LOADING:
+		return "LOADING";
+
+		case current_state::IDLE:
+		return "IDLE";
+
+		default:
+		return "INVALID STATE";
+	}
+}
+
 void UnicornState::processKey(int c)
 {
   if (c == 'h')
@@ -104,31 +128,28 @@ void UnicornState::processKey(int c)
   }
   else if (c == '1')
   {
-  	ROS_INFO("Pressed 1");
-    state = current_state::AUTONOMOUS;
+    state_ = current_state::AUTONOMOUS;
     printUsage();
-  	if (state != current_state::MANUAL)
+  	if (state_ != current_state::MANUAL)
   	{
   		ROS_ERROR("Manual drive is active!");
   	}
   }
   else if (c == '2')
   {
-  	ROS_INFO("Pressed 2");
-    state = current_state::IDLE;
+    state_ = current_state::IDLE;
     printUsage();
   }
   else if (c == '3')
   {
-  	state = current_state::MANUAL;
+  	state_ = current_state::MANUAL;
   	man_cmd_vel_.angular.z = 0;
 	man_cmd_vel_.linear.x = 0;
-  	ROS_INFO("Pressed 3");
   	printUsage();
   }
   else if (c == '4')
   {
-  	state = current_state::LOADING;
+  	state_ = current_state::LOADING;
   	man_cmd_vel_.angular.z = 0;
 	man_cmd_vel_.linear.x = 0;
 	target_yaw_ = current_yaw_ + M_PI;
@@ -136,15 +157,14 @@ void UnicornState::processKey(int c)
 	{
 		target_yaw_ -= 2*M_PI;
 	}
-  	ROS_INFO("Pressed 3");
   	printUsage();
   }
 }
 
 void UnicornState::printUsage()
 {
-	std::cout << "------------------- State: " << current_state::IDLE << "-------------------" << std::endl 
-	<< "1: Specify new goal 2: Idle mode 3: Manual control" << std::endl
+	std::cout << "------------------- State_: " << stateToString(state_).c_str() << "-------------------" << std::endl 
+	<< "1: Specify new goal 2: Idle mode 3: Manual control 4: Init Load" << std::endl
 	<< "H: Cancel current goal  L: Init global localization" << std::endl;
 }
 
@@ -162,7 +182,7 @@ void UnicornState::active()
 	processKey(c);
 
 	
-	switch(state)
+	switch(state_)
 	{
 		case current_state::AUTONOMOUS:
 		break;
@@ -170,28 +190,23 @@ void UnicornState::active()
 		case current_state::MANUAL:
 		if (c == 'a')
 		{
-			ROS_INFO("Pressed a");
 			man_cmd_vel_.angular.z = MAX_ANGULAR_VEL;
 		}
 		else if (c == 'w')
 		{
-			ROS_INFO("Pressed w");
 			man_cmd_vel_.linear.x = MAX_LINEAR_VEL;
 		}
 		else if (c == 'd')
 		{
-			ROS_INFO("Pressed d");
 			man_cmd_vel_.angular.z = -MAX_ANGULAR_VEL;
 		}
 		else if (c == 's')
 		{
-			ROS_INFO("Pressed s");
 			man_cmd_vel_.angular.z = 0;
 			man_cmd_vel_.linear.x = 0;
 		}
 		else if (c == 'x')
 		{
-			ROS_INFO("Pressed x");
 			man_cmd_vel_.linear.x = -MAX_LINEAR_VEL;
 		}
 		cmd_vel_pub_.publish(man_cmd_vel_);
@@ -199,14 +214,14 @@ void UnicornState::active()
 
 		case current_state::LOADING:
 		std::cout << "err: " << std::abs(target_yaw_ - current_yaw_) << std::endl;
-		switch(loading_state)
+		switch(loading_state_)
 		{
 			case current_state::ALIGNING:
 				if (std::abs(target_yaw_ - current_yaw_) > 0.05)
 				{
 					if (std::abs(target_yaw_ - current_yaw_) > 0.3)
 					{
-						man_cmd_vel_.angular.z = sgn(target_yaw_ - current_yaw_)*0.4;
+						man_cmd_vel_.angular.z = sgn(target_yaw_ - current_yaw_)*MAX_ANGULAR_VEL;
 					}
 					else
 					{
@@ -216,7 +231,8 @@ void UnicornState::active()
 				else
 				{
 					man_cmd_vel_.angular.z = 0;
-					loading_state = current_state::ENTERING;
+					loading_state_ = current_state::ENTERING;
+					printUsage();
 				}
 				break;
 
@@ -231,18 +247,20 @@ void UnicornState::active()
 				{
 					man_cmd_vel_.angular.z = 0;
 					man_cmd_vel_.linear.x = 0;
-					state = current_state::IDLE;
+					state_ = current_state::IDLE;
+					loading_state_ = current_state::ALIGNING;
+					printUsage();
 				}
 				else if(flag == 0)
 				{
-					man_cmd_vel_.linear.x = -0.1;
+					man_cmd_vel_.linear.x = -0.13;
 				}
 				break;
 
 			case current_state::EXITING:
 				break;
 			default:
-				loading_state = current_state::ALIGNING;
+				break;
 		}
 		cmd_vel_pub_.publish(man_cmd_vel_);
 		break;

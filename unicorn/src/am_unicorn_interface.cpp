@@ -23,6 +23,7 @@ void AmUnicornInterface::cmdVelCallback(const geometry_msgs::Twist& cmd_vel)
 {
   unicorn_cmd_vel_ = cmd_vel;
   unicorn_cmd_vel_.linear.x = -unicorn_cmd_vel_.linear.x;
+  unicorn_cmd_vel_.linear.z = -unicorn_cmd_vel_.linear.z;
 }
 
 void AmUnicornInterface::publishCmd()

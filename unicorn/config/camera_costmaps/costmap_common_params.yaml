@@ -24,7 +24,7 @@ obstacle_layer:
   raytrace_range: 3.0
 
   #Cost function parameters
-  inflation_radius: 0.7
+  inflation_radius: 0.55
   cost_scaling_factor: 10.0
 
   #The cost at which a cell is considered an obstacle when a map is read from the map_server
