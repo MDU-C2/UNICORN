@@ -1,4 +1,4 @@
-image: /home/akn13013/catkin_ws/src/UNICORN/unicorn_slam/maps/gmap_map.pgm
+image: /home/albin/catkin_ws/src/UNICORN/unicorn_slam/maps/gmap_map.pgm
 resolution: 0.050000
 origin: [-100.000000, -100.000000, 0.000000]
 negate: 0

@@ -22,6 +22,11 @@
   <xacro:arg name="laser_rpy" default="0.0 0.0 ${M_PI}" />
   <xacro:include filename="$(find lms1xx)/urdf/sick_lms1xx.urdf.xacro" />
 
+  <!-- Ultrasonic sensor -->
+  <xacro:arg name="ultrasonic_xyz" default="-0.3 0 0.2" />
+  <xacro:arg name="ultrasonic_rpy" default="0 0 ${M_PI}" />
+  <xacro:include filename="$(find unicorn_description)/urdf/ultrasonic_sensor.urdf.xacro" />
+
   <!-- Wheel -->
   <xacro:include filename="$(find am_description)/urdf/wheel.urdf.xacro" />
 
@@ -184,13 +189,94 @@
   
   <!--<sick_lms1xx_mount prefix="base"/>-->
 
-    <sick_lms1xx frame="base_laser" topic="scan" robot_namespace="$(arg robot_namespace)"/>
+  <sick_lms1xx frame="base_laser" topic="scan" robot_namespace="$(arg robot_namespace)"/>
 
-    <joint name="laser_mount_joint" type="fixed">
-      <origin xyz="$(arg laser_xyz)" rpy="$(arg laser_rpy)" />
-      <parent link="base_link_gazebo" />
-      <child link="base_laser" />
-    </joint>
+  <joint name="laser_mount_joint" type="fixed">
+    <origin xyz="$(arg laser_xyz)" rpy="$(arg laser_rpy)" />
+    <parent link="base_link_gazebo" />
+    <child link="base_laser" />
+  </joint>
+
+  <!-- Ultrasonic sensor -->
+  <ultrasonic_sensor frame="base_ultrasonic_fr" topic="fr" robot_namespace="$(arg robot_namespace)"/>
+
+  <joint name="ultrasonic_mount_joint_fr" type="fixed">
+    <origin xyz="-0.2 0.2 0.0" rpy="0 0 ${M_PI + M_PI/4}"/>
+    <parent link="base_link_gazebo"/>
+    <child link="base_ultrasonic_fr" />
+  </joint>
+
+  <ultrasonic_sensor frame="base_ultrasonic_fm" topic="fm" robot_namespace="$(arg robot_namespace)"/>
+
+  <joint name="ultrasonic_mount_joint_fm" type="fixed">
+    <origin xyz="-0.2 0.0 0.0" rpy="0 0 ${M_PI}"/>
+    <parent link="base_link_gazebo"/>
+    <child link="base_ultrasonic_fm" />
+  </joint>
+
+  <ultrasonic_sensor frame="base_ultrasonic_fl" topic="fl" robot_namespace="$(arg robot_namespace)"/>
+
+  <joint name="ultrasonic_mount_joint_fl" type="fixed">
+    <origin xyz="-0.2 -0.2 0.0" rpy="0 0 ${M_PI - M_PI/4}"/>
+    <parent link="base_link_gazebo"/>
+    <child link="base_ultrasonic_fl" />
+  </joint>
+
+  <ultrasonic_sensor frame="base_ultrasonic_r" topic="r" robot_namespace="$(arg robot_namespace)"/>
+
+  <joint name="ultrasonic_mount_joint_r" type="fixed">
+    <origin xyz="0.4 0.25 0.0" rpy="0 -${M_PI/64} ${3*M_PI/4}"/>
+    <parent link="base_link_gazebo"/>
+    <child link="base_ultrasonic_r" />
+  </joint>
+
+  <ultrasonic_sensor frame="base_ultrasonic_l" topic="l" robot_namespace="$(arg robot_namespace)"/>
+
+  <joint name="ultrasonic_mount_joint_l" type="fixed">
+    <origin xyz="0.4 -0.25 0.0" rpy="0 -${M_PI/64} -${3*M_PI/4}"/>
+    <parent link="base_link_gazebo"/>
+    <child link="base_ultrasonic_l" />
+  </joint>
+
+  <ultrasonic_sensor frame="base_ultrasonic_rm" topic="rm" robot_namespace="$(arg robot_namespace)"/>
+
+  <joint name="ultrasonic_mount_joint_rm" type="fixed">
+    <origin xyz="0.15 0.25 0.0" rpy="0 -${M_PI/64} ${M_PI/4}"/>
+    <parent link="base_link_gazebo"/>
+    <child link="base_ultrasonic_rm" />
+  </joint>
+
+  <ultrasonic_sensor frame="base_ultrasonic_lm" topic="lm" robot_namespace="$(arg robot_namespace)"/>
+  <joint name="ultrasonic_mount_joint_lm" type="fixed">
+    <origin xyz="0.15 -0.25 0.0" rpy="0 -${M_PI/64} -${M_PI/4}"/>
+    <parent link="base_link_gazebo"/>
+    <child link="base_ultrasonic_lm"/>
+  </joint>
+
+  <ultrasonic_sensor frame="base_ultrasonic_br" topic="br" robot_namespace="$(arg robot_namespace)"/>
+  <joint name="ultrasonic_mount_joint_br" type="fixed">
+    <origin xyz="0.5 0.2 0.0" rpy="0 -${M_PI/64} -${M_PI/4}"/>
+    <parent link="base_link_gazebo"/>
+    <child link="base_ultrasonic_br" />
+  </joint>
+
+  <ultrasonic_sensor frame="base_ultrasonic_bm" topic="bm" robot_namespace="$(arg robot_namespace)"/>
+
+  <joint name="ultrasonic_mount_joint_bm" type="fixed">
+    <origin xyz="0.5 0.0 0.0" rpy="0 -${M_PI/64} 0"/>
+    <parent link="base_link_gazebo"/>
+    <child link="base_ultrasonic_bm" />
+  </joint>
+
+  <ultrasonic_sensor frame="base_ultrasonic_bl" topic="bl" robot_namespace="$(arg robot_namespace)"/>
+
+  <joint name="ultrasonic_mount_joint_bl" type="fixed">
+    <origin xyz="0.5 -0.2 0.0" rpy="0 -${M_PI/64} ${M_PI/4}"/>
+    <parent link="base_link_gazebo"/>
+    <child link="base_ultrasonic_bl" />
+  </joint>
+
+
 
   <!-- GAZEBO STUFF -->
   <gazebo>
