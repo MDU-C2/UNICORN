@@ -16,7 +16,8 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-UnicornState::UnicornState()
+UnicornState::UnicornState() 
+: move_base_clt_("move_base", true)
 {
   bool run_global_loc;
   std::string odom_topic;
@@ -26,34 +27,26 @@ UnicornState::UnicornState()
     globalLocalization();
   }
 
-  if(n_.getParam("max_angular_vel", MAX_ANGULAR_VEL))
-  {
-  	ROS_INFO("MAX_ANGULAR_VEL: %f", MAX_ANGULAR_VEL);
-  }
-  else
+  if(!n_.getParam("max_angular_vel", MAX_ANGULAR_VEL))
   {
   	MAX_ANGULAR_VEL = 0.5;
-  	ROS_INFO("MAX_LINEAR_VEL: %f", MAX_LINEAR_VEL);
   }
-
-  if(n_.getParam("max_linear_vel", MAX_LINEAR_VEL))
-  {
-  	ROS_INFO("MAX_LINEAR_VEL: %f", MAX_LINEAR_VEL);
-  }
-  else
+  ROS_INFO("MAX_ANGULAR_VEL: %f", MAX_ANGULAR_VEL);
+  if(!n_.getParam("max_linear_vel", MAX_LINEAR_VEL))
   {
   	MAX_LINEAR_VEL = 0.3;
-  	ROS_INFO("MAX_LINEAR_VEL: %f", MAX_LINEAR_VEL);
   }
-
-  if (n_.getParam("odometry_topic", odom_topic))
-  {
-  	ROS_INFO("[unicorn_statemachine] Listening to %s", odom_topic.c_str());
-  }
-  else
+  ROS_INFO("MAX_LINEAR_VEL: %f", MAX_LINEAR_VEL);
+  if (!n_.getParam("odometry_topic", odom_topic))
   {
   	odom_topic = "odom";
   }
+  if (!n_.getParam("frame_id", frame_id_))
+  {
+  	frame_id_ = "base_link";
+  }
+  ROS_INFO("[unicorn_statemachine] Robot frame_id: %s", frame_id_.c_str());
+  ROS_INFO("[unicorn_statemachine] Listening to %s", odom_topic.c_str());
 
   move_base_cancel_pub_ = n_.advertise<actionlib_msgs::GoalID>("/move_base/cancel", 0);
   amcl_global_clt_ = n_.serviceClient<std_srvs::Empty>("/global_localization");
@@ -116,11 +109,10 @@ std::string UnicornState::stateToString(int state)
 
 void UnicornState::processKey(int c)
 {
+  float x,y,yaw;
   if (c == 'h')
   {
-    ROS_INFO("Canceling move_base goal");
-    actionlib_msgs::GoalID cancel_all;
-    move_base_cancel_pub_.publish(cancel_all);
+    cancelGoal();
   }
   else if (c == 'l')
   {
@@ -128,20 +120,29 @@ void UnicornState::processKey(int c)
   }
   else if (c == '1')
   {
-    state_ = current_state::AUTONOMOUS;
-    printUsage();
-  	if (state_ != current_state::MANUAL)
+  	if (state_ == current_state::MANUAL)
   	{
   		ROS_ERROR("Manual drive is active!");
+  	}
+  	else
+  	{
+    	std::cout << "Target x: "; std::cin >> x;
+    	std::cout << "Target y: "; std::cin >> y;
+    	std::cout << "Target yaw: "; std::cin >> yaw;
+    	sendGoal(x,y,yaw);
+    	state_ = current_state::AUTONOMOUS;
+    	printUsage();
   	}
   }
   else if (c == '2')
   {
+  	cancelGoal();
     state_ = current_state::IDLE;
     printUsage();
   }
   else if (c == '3')
   {
+  	cancelGoal();
   	state_ = current_state::MANUAL;
   	man_cmd_vel_.angular.z = 0;
 	man_cmd_vel_.linear.x = 0;
@@ -159,13 +160,22 @@ void UnicornState::processKey(int c)
 	}
   	printUsage();
   }
+  else if (c == '5')
+  {
+   	std::cout << "Target x: "; std::cin >> x;
+   	std::cout << "Target y: "; std::cin >> y;
+   	std::cout << "Target yaw: "; std::cin >> yaw;
+   	sendMoveCmd(x,y,yaw);
+   	state_ = current_state::AUTONOMOUS;
+   	printUsage();
+  }
 }
 
 void UnicornState::printUsage()
 {
-	std::cout << "------------------- State_: " << stateToString(state_).c_str() << "-------------------" << std::endl 
-	<< "1: Specify new goal 2: Idle mode 3: Manual control 4: Init Load" << std::endl
-	<< "H: Cancel current goal  L: Init global localization" << std::endl;
+	std::cout << "------------------- State: " << stateToString(state_).c_str() << " -------------------" << std::endl 
+	<< "1: Specify new goal 2: Idle mode 3: Manual control 4: Init Load 5: Send command" << std::endl
+	<< "H: Pause execution  L: Init global localization" << std::endl;
 }
 
 void UnicornState::odomCallback(const nav_msgs::Odometry& msg)
@@ -185,6 +195,11 @@ void UnicornState::active()
 	switch(state_)
 	{
 		case current_state::AUTONOMOUS:
+	  	if(move_base_clt_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+	  	{
+	    	ROS_INFO("[unicorn_statemachine] Goal reached");
+	    	state_ = current_state::IDLE;
+	  	}
 		break;
 
 		case current_state::MANUAL:
@@ -271,4 +286,84 @@ void UnicornState::active()
 		default:
 		break;
 	}
+}
+
+void UnicornState::sendGoal(float x, float y, float yaw)
+{
+	try {
+	  float check_input=boost::lexical_cast<float>(x);
+	} catch(boost::bad_lexical_cast &) {
+	  ROS_ERROR("[unicorn_statemachine] x is undefined");
+	  return;
+	}
+	try {
+	  float check_input=boost::lexical_cast<float>(y);
+	} catch(boost::bad_lexical_cast &) {
+	  ROS_ERROR("[unicorn_statemachine] y is undefined");
+	  return;
+	}
+	try {
+	  float check_input=boost::lexical_cast<float>(yaw);
+	} catch(boost::bad_lexical_cast &) {
+	  ROS_ERROR("[unicorn_statemachine] yaw is undefined");
+	  return;
+	}
+    while(!move_base_clt_.waitForServer(ros::Duration(5.0)))
+    {
+    	ROS_INFO("Waiting for the move_base action server to come up");
+  	}
+
+  	move_base_msgs::MoveBaseGoal goal;
+  	goal.target_pose.header.frame_id = "map";
+  	goal.target_pose.header.stamp = ros::Time::now();
+  	goal.target_pose.pose.position.x = x;
+  	goal.target_pose.pose.position.y = y;
+  	goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(yaw);
+
+  	move_base_clt_.sendGoal(goal);
+
+  	// move_base_clt_.waitForResult();
+
+}
+
+void UnicornState::sendMoveCmd(float x, float y, float yaw)
+{
+	try {
+	  float check_input=boost::lexical_cast<float>(x);
+	} catch(boost::bad_lexical_cast &) {
+	  ROS_ERROR("[unicorn_statemachine] x is undefined");
+	  return;
+	}
+	try {
+	  float check_input=boost::lexical_cast<float>(y);
+	} catch(boost::bad_lexical_cast &) {
+	  ROS_ERROR("[unicorn_statemachine] y is undefined");
+	  return;
+	}
+	try {
+	  float check_input=boost::lexical_cast<float>(yaw);
+	} catch(boost::bad_lexical_cast &) {
+	  ROS_ERROR("[unicorn_statemachine] yaw is undefined");
+	  return;
+	}
+	while(!move_base_clt_.waitForServer(ros::Duration(5.0)))
+    {
+    	ROS_INFO("Waiting for the move_base action server to come up");
+  	}
+
+  	move_base_msgs::MoveBaseGoal goal;
+  	goal.target_pose.header.frame_id = frame_id_.c_str();
+  	goal.target_pose.header.stamp = ros::Time::now();
+  	goal.target_pose.pose.position.x = x;
+  	goal.target_pose.pose.position.y = y;
+  	goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(yaw);
+
+  	move_base_clt_.sendGoal(goal);
+}
+
+void UnicornState::cancelGoal()
+{
+	actionlib_msgs::GoalID cancel_all;
+    move_base_cancel_pub_.publish(cancel_all);
+    ROS_INFO("[unicorn_statemachine] Canceling move_base goal");
 }

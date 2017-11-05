@@ -1,5 +1,5 @@
 footprint: [[-0.6, -0.3], [-0.6, 0.3], [0.2, 0.3], [0.2, -0.3]]
-footprint_padding: 0.01
+footprint_padding: 0.05
 
 #For this example we'll configure the costmap in voxel-grid mode
 obstacle_layer:
@@ -16,7 +16,7 @@ obstacle_layer:
   transform_tolerance: 0.3
 
   #Obstacle marking parameters
-  obstacle_range: 2.5
+  obstacle_range: 5.0
   max_obstacle_height: 2.0
   raytrace_range: 3.0
 

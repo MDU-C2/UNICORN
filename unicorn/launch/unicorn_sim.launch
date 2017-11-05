@@ -8,15 +8,16 @@
 	<arg name="paused" default="false"/>
 	<arg name="debug" default="false"/>  	
 	<arg name="gazebo_gui" default="false"/>
-	<arg name="use_gmapping" default="true"/>
+	<arg name="use_gmapping" default="false"/>
 	<arg name="scan_topic" value="scan_filtered"/>
 	<arg name="map_file" value="$(find unicorn_slam)/maps/gmap_map.yaml"/>
 	<rosparam param="global_local">false</rosparam>
+	<rosparam param="frame_id">chassis_link</rosparam>
 	<!-- Joint pos gui -->
 	<param name="use_gui" value="false"/> 
 	<!-- Lidar angle limitations (rad) -->
-	<rosparam param="lower_angle">-1.48</rosparam>
-	<rosparam param="upper_angle">1.48</rosparam>
+	<rosparam param="lower_angle">-1.57</rosparam>
+	<rosparam param="upper_angle">1.57</rosparam>
 	<rosparam param="use_sim_time">true</rosparam>
 
 	<group if="$(arg use_gmapping)">
@@ -51,7 +52,6 @@
 		<param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
 		<param name="base_global_planner" value="navfn/NavfnROS"/>
 		<!-- <param name="base_global_planner" value="global_planner/GlobalPlanner"/> -->
-		<param name="controller_frequency" value="10.0" /> 
 		<rosparam file="$(find unicorn_description)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
 		<rosparam file="$(find unicorn_description)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
 		<rosparam file="$(find unicorn_description)/config/local_costmap_params.yaml" command="load" />

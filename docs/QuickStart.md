@@ -6,8 +6,6 @@
 - LMS111
 - Zed Camera
 - Usb 3.0 hub
-- Power Supply?
-    + Extension cord
 - Husqvarna Automower
 
 ### Connection
@@ -33,7 +31,7 @@ Or by copying files from your host computer:
 
 Remember to build the code if you update it:
 
-> cd ~/catkin_ws && catkin_make_
+> cd ~/catkin_ws && catkin_make
 
 ### Run
 

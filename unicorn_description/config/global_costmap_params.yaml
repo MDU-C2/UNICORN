@@ -1,9 +1,10 @@
 global_costmap:
   global_frame: /map
   robot_base_frame: chassis_link
-  update_frequency: 5.0
-  static_map: true
+  update_frequency: 1.0
+  use_first_map_only: True
+  static_map: True
 
   inflation_layer:
-     inflation_radius: 2.5
+     inflation_radius: 4
      cost_scaling_factor: 5.0
