@@ -16,12 +16,14 @@
 #include <termios.h>
 #include <cmath>
 
-typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
+typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient; /* Client that calls actions from move_base */
 
+/*@brief Function to get sign of input */
 template <typename T> int sgn(T val) {
     return (T(0) < val) - (val < T(0));
 }
 
+/* Current state of the robot */
 namespace current_state
 {
 	enum
@@ -35,20 +37,47 @@ namespace current_state
 		ENTERING
 	};
 }
-
+/**@brief Main node class for unicorn_statemachine 
+*	C++ API for sending commands to the robot 
+*	during the debugging process
+**/
 class UnicornState
 {
 public:
+	/**@brief Initializes publishers/subscribers */
 	UnicornState();
+	/**@brief Start global localization
+	*	Calls rosservice /global_localization
+	*	from rosnode /amcl
+	**/
 	void globalLocalization();
+	/**@brief Non-blocking get char*/
 	int getCharacter();
+	/**@brief Calls functions from keyboard input 
+	*	@param c input key
+	**/
 	void processKey(int c);
+	/**@brief Prints key usage */
 	void printUsage();
+	/**@brief Outer loop*/
 	void active();
+	/**@brief Maps current state to a string 
+	*	@param state current machine state
+	*	@output string state as string */
 	std::string stateToString(int state);
 	void odomCallback(const nav_msgs::Odometry& msg);
+	/**@brief Sends a goal on the map to move_base
+	*	@param x,y target point on map
+	*	@param yaw target heading
+	**/
 	void sendGoal(float x, float y, float yaw);
+	/**@brief Sends a goal to move_base
+	*	The goal is relative to current robot position
+	*	@param x,y target point on map
+	*	@param yaw target heading
+	**/
 	void sendMoveCmd(float x, float y, float yaw);
+	/*@brief Cancels all current goals*/
 	void cancelGoal();
 private:
 	ros::NodeHandle n_;
@@ -59,11 +88,10 @@ private:
 	geometry_msgs::Twist man_cmd_vel_;
 	MoveBaseClient move_base_clt_;
 	std::string frame_id_;
-	tf::StampedTransform map_to_base_transform_;
 	tf::TransformListener tf_listener_;
 
-	int state_, flag, loading_state_;
-	double current_yaw_, target_yaw_;
+	int state_, flag, loading_state_; 
+	double current_yaw_, target_yaw_; /* Used to align current heading to garbage disposal heading */
 	double x_vel_;
 	double MAX_ANGULAR_VEL;
 	double MAX_LINEAR_VEL;

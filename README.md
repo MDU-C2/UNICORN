@@ -16,6 +16,7 @@ Please read through the coding style guides we are using
 sudo apt-get install ros-kinetic-effort-controllers
 sudo apt-get install ros-kinetic-gmapping
 sudo apt-get install ros-kinetic-gazebo-ros
+sudo apt-get install ros-kinetic-range-sensor-layer
 cd ~/catkin_ws/src
 git clone https://github.com/HusqvarnaResearch/hrp.git
 git clone https://github.com/clearpathrobotics/LMS1xx.git
@@ -26,6 +27,15 @@ cd ~/catkin_ws && rosdep install --from-paths src --ignore-src -r -y
 cd ~/catkin_ws && catkin_make
 ```
 
+## Documentation
+
+Generate documentation using rosdoc_lite by running:
+> ./generate_doc.sh
+
+Then access the documentation by running:
+> xdg-open docs/doc/html/annotated.html
+
+Or by going to the html folder and double-clicking on annotated.html
 
 ## How to Git
 

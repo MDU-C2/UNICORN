@@ -231,6 +231,8 @@ void UnicornState::active()
 		std::cout << "err: " << std::abs(target_yaw_ - current_yaw_) << std::endl;
 		switch(loading_state_)
 		{
+			/* Rotates the machine 180 degrees relative to current position 
+			* TODO: Rotate to align with current heading of garbage disposal */
 			case current_state::ALIGNING:
 				if (std::abs(target_yaw_ - current_yaw_) > 0.05)
 				{
@@ -250,7 +252,10 @@ void UnicornState::active()
 					printUsage();
 				}
 				break;
-
+			/* Checks a flag when machine has started moving 
+			*  Stops the machine when wheels moves to slow
+			*TODO: Wait for signal to exit the garbage disposal
+			*TODO: Use range sensors to stop at correct position instead */
 			case current_state::ENTERING:
 				man_cmd_vel_.angular.z = 0;
 				ROS_INFO("vel: %f", std::abs(x_vel_));
