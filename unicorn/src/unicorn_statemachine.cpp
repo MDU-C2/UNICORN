@@ -52,9 +52,12 @@ UnicornState::UnicornState()
   amcl_global_clt_ = n_.serviceClient<std_srvs::Empty>("/global_localization");
   cmd_vel_pub_ = n_.advertise<geometry_msgs::Twist>("/unicorn/cmd_vel", 0);
   odom_sub_ = n_.subscribe(odom_topic.c_str(), 0, &UnicornState::odomCallback, this);
+  range_sub_ = n_.subscribe("ultrasonic_bm", 0, &UnicornState::rangeCallback, this);
 
   state_ = current_state::MANUAL;
   loading_state_ = current_state::ALIGNING;
+  back_sensor_range_ = 4.0;
+  move_base_active_ = 0;
 }
 void UnicornState::globalLocalization()
 {
@@ -143,6 +146,7 @@ void UnicornState::processKey(int c)
   else if (c == '3')
   {
   	cancelGoal();
+  	move_base_active_ = 0;
   	state_ = current_state::MANUAL;
   	man_cmd_vel_.angular.z = 0;
 	man_cmd_vel_.linear.x = 0;
@@ -151,13 +155,9 @@ void UnicornState::processKey(int c)
   else if (c == '4')
   {
   	state_ = current_state::LOADING;
+  	loading_state_ = current_state::ALIGNING;
   	man_cmd_vel_.angular.z = 0;
 	man_cmd_vel_.linear.x = 0;
-	target_yaw_ = current_yaw_ + M_PI;
-	if (target_yaw_ > M_PI)
-	{
-		target_yaw_ -= 2*M_PI;
-	}
   	printUsage();
   }
   else if (c == '5')
@@ -183,7 +183,12 @@ void UnicornState::odomCallback(const nav_msgs::Odometry& msg)
 	tf::Pose pose;
 	tf::poseMsgToTF(msg.pose.pose, pose);
 	current_yaw_ = tf::getYaw(pose.getRotation());
-	x_vel_ = msg.twist.twist.linear.x;
+	current_vel_ = msg.twist.twist.linear.x;
+}
+
+void UnicornState::rangeCallback(const sensor_msgs::Range& msg)
+{
+	back_sensor_range_ = msg.range;
 }
 
 void UnicornState::active()
@@ -228,64 +233,68 @@ void UnicornState::active()
 		break;
 
 		case current_state::LOADING:
-		std::cout << "err: " << std::abs(target_yaw_ - current_yaw_) << std::endl;
 		switch(loading_state_)
 		{
-			/* Rotates the machine 180 degrees relative to current position 
-			* TODO: Rotate to align with current heading of garbage disposal */
+			/** Rotates the machine 180 degrees relative to current position.
+			* @todo Rotate to align with current heading of garbage disposal.
+			*/
 			case current_state::ALIGNING:
-				if (std::abs(target_yaw_ - current_yaw_) > 0.05)
-				{
-					if (std::abs(target_yaw_ - current_yaw_) > 0.3)
-					{
-						man_cmd_vel_.angular.z = sgn(target_yaw_ - current_yaw_)*MAX_ANGULAR_VEL;
-					}
-					else
-					{
-						man_cmd_vel_.angular.z = sgn(target_yaw_ - current_yaw_)*0.1;
-					}
-				}
-				else
-				{
-					man_cmd_vel_.angular.z = 0;
-					loading_state_ = current_state::ENTERING;
-					printUsage();
-				}
+				if (!move_base_active_)
+		    	{
+		    		ROS_INFO("[unicorn_statemachine] Aligning with garbage disposal...");
+		    		sendMoveCmd(0,0,3.14);
+		    		move_base_active_ = 1;
+		    		return;
+		    	}
+			    if (move_base_clt_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+			    {
+			    	move_base_active_ = 0;
+			    	loading_state_ = current_state::ENTERING;
+			    	ROS_INFO("[unicorn_statemachine] Entering garbage disposal");
+			    }
 				break;
-			/* Checks a flag when machine has started moving 
-			*  Stops the machine when wheels moves to slow
-			*TODO: Wait for signal to exit the garbage disposal
-			*TODO: Use range sensors to stop at correct position instead */
+			/** Moves the machine close to a wall.
+			* Stops the machine when range to wall is below 20cm.
+			*/
 			case current_state::ENTERING:
 				man_cmd_vel_.angular.z = 0;
-				ROS_INFO("vel: %f", std::abs(x_vel_));
-				if (std::abs(x_vel_) > 0.05)
-				{
-					flag = 1;
-				}
-				if (flag == 1 && std::abs(x_vel_) < 0.05)
-				{
-					man_cmd_vel_.angular.z = 0;
-					man_cmd_vel_.linear.x = 0;
-					state_ = current_state::IDLE;
-					loading_state_ = current_state::ALIGNING;
-					printUsage();
-				}
-				else if(flag == 0)
+				if(back_sensor_range_ > 0.2)
 				{
 					man_cmd_vel_.linear.x = -0.13;
 				}
+				else
+				{
+					man_cmd_vel_.linear.x = 0.0;
+					loading_state_ = current_state::EXITING;
+					ROS_INFO("[unicorn_statemachine] Entered garbage disposal. Waiting for exit signal");
+				}
+				cmd_vel_pub_.publish(man_cmd_vel_);
+
 				break;
 
 			case current_state::EXITING:
+				if (c == 'k')
+				{
+					sendMoveCmd(1.5,0,0);
+		    		move_base_active_ = 1;
+		    		ROS_INFO("[unicorn_statemachine] Exiting garbage disposal");
+		    		return;
+				}
+				if (move_base_clt_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED && move_base_active_)
+				{
+					move_base_active_ = 0;
+					state_ = current_state::IDLE;
+					ROS_INFO("[unicorn_statemachine] Loading complete!");
+				}
 				break;
 			default:
 				break;
 		}
-		cmd_vel_pub_.publish(man_cmd_vel_);
+		
 		break;
 
 		case current_state::IDLE:
+		move_base_active_ = 0;
 		break;
 
 		default:
