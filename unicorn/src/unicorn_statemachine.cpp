@@ -275,17 +275,27 @@ void UnicornState::active()
 			case current_state::EXITING:
 				if (c == 'k')
 				{
-					sendMoveCmd(1.5,0,0);
+					/*sendMoveCmd(1.5,0,0);
 		    		move_base_active_ = 1;
+		    		ROS_INFO("[unicorn_statemachine] Exiting garbage disposal");		    		
+		    		return;*/
 		    		ROS_INFO("[unicorn_statemachine] Exiting garbage disposal");
-		    		return;
+		    		man_cmd_vel_.linear.x = 0.13;
 				}
-				if (move_base_clt_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED && move_base_active_)
+				if (back_sensor_range_ > 1.5)
+				{
+					man_cmd_vel_.linear.x = 0.0;
+					ROS_INFO("[unicorn_statemachine] Loading complete!");
+					state_ = current_state::IDLE;
+					printUsage();
+				}
+				/*if (move_base_clt_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED && move_base_active_)
 				{
 					move_base_active_ = 0;
 					state_ = current_state::IDLE;
 					ROS_INFO("[unicorn_statemachine] Loading complete!");
-				}
+				}*/
+				cmd_vel_pub_.publish(man_cmd_vel_);
 				break;
 			default:
 				break;
@@ -308,18 +318,21 @@ void UnicornState::sendGoal(float x, float y, float yaw)
 	  float check_input=boost::lexical_cast<float>(x);
 	} catch(boost::bad_lexical_cast &) {
 	  ROS_ERROR("[unicorn_statemachine] x is undefined");
+	  state_ = current_state::IDLE;
 	  return;
 	}
 	try {
 	  float check_input=boost::lexical_cast<float>(y);
 	} catch(boost::bad_lexical_cast &) {
 	  ROS_ERROR("[unicorn_statemachine] y is undefined");
+	  state_ = current_state::IDLE;
 	  return;
 	}
 	try {
 	  float check_input=boost::lexical_cast<float>(yaw);
 	} catch(boost::bad_lexical_cast &) {
 	  ROS_ERROR("[unicorn_statemachine] yaw is undefined");
+	  state_ = current_state::IDLE;
 	  return;
 	}
     while(!move_base_clt_.waitForServer(ros::Duration(5.0)))

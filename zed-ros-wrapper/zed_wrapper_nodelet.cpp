@@ -50,6 +50,7 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_ros/transform_broadcaster.h>
+#include <tf/transform_listener.h>
 #include <geometry_msgs/TransformStamped.h>
 
 #include <opencv2/core/core.hpp>
@@ -490,9 +491,38 @@ namespace zed_wrapper {
             sl::RuntimeParameters runParams;
             runParams.sensing_mode = static_cast<sl::SENSING_MODE> (sensing_mode);
 
+
             sl::TrackingParameters trackParams;
             trackParams.area_file_path = odometry_DB.c_str();
-
+            tf::TransformListener tf_listener_;
+            tf::StampedTransform base_to_cam_transform;
+            ros::Time now = ros::Time::now();
+            try
+            {
+                tf_listener_.waitForTransform("/odom",
+                                            "/base_link", 
+                                            now,
+                                            ros::Duration(3.0));
+                tf_listener_.lookupTransform("/odom",
+                                            "/base_link", 
+                                            now,
+                                            base_to_cam_transform);
+            }
+            catch(tf::TransformException& ex)
+            {
+                ROS_ERROR("%s", ex.what());
+                return;
+            }
+            sl::Transform initial_position;
+            // Set the initial positon of the Camera Frame at 1m80 above the World Frame
+            initial_position.setTranslation(sl::Translation(base_to_cam_transform.getOrigin().x(),
+                base_to_cam_transform.getOrigin().y(), 
+                base_to_cam_transform.getOrigin().z()));
+            initial_position.setRotation(sl::Rotation(sl::Vector4<float>(base_to_cam_transform.getRotation().z(),
+                base_to_cam_transform.getRotation().x(),
+                base_to_cam_transform.getRotation().y(),
+                base_to_cam_transform.getRotation().w())));
+            trackParams.initial_world_transform = initial_position;
 
             sl::Mat leftZEDMat, rightZEDMat, depthZEDMat;
             // Main loop
@@ -669,11 +699,11 @@ namespace zed_wrapper {
                         sl::Translation translation = pose.getTranslation();
                         c2s.translation.x = translation(2);
                         c2s.translation.y = -translation(0);
-                        c2s.translation.z = -translation(1);
+                        c2s.translation.z = 0;
                         sl::Orientation quat = pose.getOrientation();
                         //c2s.rotation.x = 0;
-                        c2s.rotation.x = quat(2);
-                        c2s.rotation.y = -quat(0);
+                        c2s.rotation.x = 0;
+                        c2s.rotation.y = 0;
                         c2s.rotation.z = -quat(1);
                         c2s.rotation.w = quat(3);
                         tf2::fromMsg(c2s, camera_transform);

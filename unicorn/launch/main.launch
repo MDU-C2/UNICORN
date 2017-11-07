@@ -51,7 +51,7 @@
 </group>
 
 <!-- Run a VoxelGrid filter to clean NaNs and downsample the pointcloud output goes to cloud_filtered -->
-<node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen" />
+<!-- <node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen" />
 <node pkg="nodelet" type="nodelet" name="voxel_grid" args="load pcl/VoxelGrid pcl_manager" output="screen">
 <remap from="~input" to="/zed/point_cloud/cloud_registered" />
 <remap from="~output" to="cloud_filtered" />
@@ -62,7 +62,7 @@
  filter_limit_negative: False
  leaf_size: 0.02
 </rosparam>
-</node>
+</node> -->
 
 <!-- load joint controller configurations from YAML file to parameter server -->
 <rosparam file="$(find am_control)/config/joint_position_control.yaml" command="load" />
@@ -100,12 +100,11 @@
 	<param name="base_global_planner" value="navfn/NavfnROS"/>
 	<!-- <param name="base_global_planner" value="global_planner/GlobalPlanner"/> -->
 	<param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
-	<param name="controller_frequency" value="10.0" />
-	<rosparam file="$(find unicorn)/config/test_config/base_local_planner_teb.yaml" command="load" />
-	<rosparam file="$(find unicorn)/config/camera_costmaps/costmap_common_params.yaml" command="load" ns="global_costmap" />
-	<rosparam file="$(find unicorn)/config/camera_costmaps/costmap_common_params.yaml" command="load" ns="local_costmap" />
-	<rosparam file="$(find unicorn)/config/camera_costmaps/local_costmap_params.yaml" command="load" />
-	<rosparam file="$(find unicorn)/config/camera_costmaps/global_costmap_params.yaml" command="load" />
+	<rosparam file="$(find unicorn)/config/base_local_planner_teb.yaml" command="load" />
+	<rosparam file="$(find unicorn)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+	<rosparam file="$(find unicorn)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+	<rosparam file="$(find unicorn)/config/local_costmap_params.yaml" command="load" />
+	<rosparam file="$(find unicorn)/config/global_costmap_params.yaml" command="load" />
 	<remap from="cmd_vel" to="/unicorn/cmd_vel"/>
 </node>
 <!-- source that publishes the joint positions as a sensor_msgs/JointState -->

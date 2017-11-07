@@ -18,6 +18,7 @@
 #include <iostream>
 #include <termios.h>
 #include <cmath>
+#include <boost/lexical_cast.hpp>
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient; /** Client that calls actions from move_base */
 

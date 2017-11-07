@@ -1,4 +1,4 @@
-footprint: [[-0.6, -0.3], [-0.6, 0.3], [0.2, 0.3], [0.2, -0.3]]
+footprint: [[-0.5, -0.3], [-0.5, 0.3], [0.2, 0.3], [0.2, -0.3]]
 footprint_padding: 0.05
 
 #For this example we'll configure the costmap in voxel-grid mode
@@ -22,10 +22,10 @@ obstacle_layer:
 
   #Cost function parameters
   inflation_radius: 0.7
-  cost_scaling_factor: 10.0
+  cost_scaling_factor: 8.0
 
   #The cost at which a cell is considered an obstacle when a map is read from the map_server
-  lethal_cost_threshold: 100
+  lethal_cost_threshold: 250
 
   #Configuration for the sensors that the costmap will use to update a map
   observation_sources: laser_scan_sensor point_cloud_sensor
