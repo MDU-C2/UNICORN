@@ -37,9 +37,11 @@
 
 	
 </group>
-
+<!-- Run Orbbec camera -->
+<include file="$(find usb_cam)/launch/usb_cam-test.launch"/>
+<include file ="$(find astra_launch)/launch/astrapro.launch"/>
 <!-- Run zed camera -->
-<group ns="zed">
+<!-- <group ns="zed">
     <include file="$(find zed_wrapper)/launch/zed_camera.launch">
         <arg name="publish_tf" value="false"/>
         <arg name="publish_urdf" value="false"/>
@@ -47,8 +49,9 @@
         <arg name="base_frame" value="zed_center"/>
         <arg name="camera_frame" value="zed_left_camera"/>
         <arg name="depth_frame" value="zed_depth_camera"/>
+        <arg name="confidence_val" value="50"/>
     </include>
-</group>
+</group> -->
 
 <!-- Run a VoxelGrid filter to clean NaNs and downsample the pointcloud output goes to cloud_filtered -->
 <!-- <node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen" />
@@ -97,8 +100,8 @@
 
 <!-- Launch Move Base -->
 <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-	<param name="base_global_planner" value="navfn/NavfnROS"/>
-	<!-- <param name="base_global_planner" value="global_planner/GlobalPlanner"/> -->
+	<!-- <param name="base_global_planner" value="navfn/NavfnROS"/> -->
+	<param name="base_global_planner" value="global_planner/GlobalPlanner"/>
 	<param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
 	<rosparam file="$(find unicorn)/config/base_local_planner_teb.yaml" command="load" />
 	<rosparam file="$(find unicorn)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />

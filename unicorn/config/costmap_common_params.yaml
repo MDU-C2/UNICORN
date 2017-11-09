@@ -2,7 +2,7 @@
 #The footprint of the robot and associated padding
 # footprint: [[-0.3, -0.3], [-0.3, 0.3], [0.6, 0.3], [0.6, -0.3]]
 footprint: [[-0.5, -0.3], [-0.5, 0.3], [0.2, 0.3], [0.2, -0.3]]
-footprint_padding: 0.05
+footprint_padding: 0.01
 
 #For this example we'll configure the costmap in voxel-grid mode
 obstacle_layer:
@@ -19,7 +19,7 @@ obstacle_layer:
   transform_tolerance: 0.3
 
   #Obstacle marking parameters
-  obstacle_range: 5.0
+  obstacle_range: 4.0
   max_obstacle_height: 2.0
   raytrace_range: 3.0
 
@@ -36,5 +36,7 @@ obstacle_layer:
   laser_scan_sensor: {sensor_frame: base_laser, data_type: LaserScan, topic: /scan_filtered, expected_update_rate: 0.5,
      marking: true, clearing: true, max_obstacle_height: 1, min_obstacle_height: 0.08}
 
-  point_cloud_sensor: {sensor_frame: zed_center, data_type: PointCloud2, topic: /zed/point_cloud/cloud_registered, expected_update_rate: 1.0,
+  # point_cloud_sensor: {sensor_frame: zed_center, data_type: PointCloud2, topic: /zed/point_cloud/cloud_registered, expected_update_rate: 1.0,
+  #    marking: true, clearing: true, max_obstacle_height: 1, min_obstacle_height: 0.1, observation_persistence: 0.0, mark_threshold: 9}
+  point_cloud_sensor: {sensor_frame: camera_depth_optical_frame, data_type: PointCloud2, topic: /camera/depth/points, expected_update_rate: 1.0,
      marking: true, clearing: true, max_obstacle_height: 1, min_obstacle_height: 0.1, observation_persistence: 0.0, mark_threshold: 9}

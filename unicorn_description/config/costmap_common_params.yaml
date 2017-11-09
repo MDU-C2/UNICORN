@@ -1,6 +1,13 @@
 footprint: [[-0.5, -0.3], [-0.5, 0.3], [0.2, 0.3], [0.2, -0.3]]
 footprint_padding: 0.05
 
+plugins:
+  - {name: static_layer,     type: "costmap_2d::StaticLayer"}
+  - {name: obstacle_layer,    type: "costmap_2d::ObstacleLayer"}
+  - {name: sonar_layer,       type: "range_sensor_layer::RangeSensorLayer"}
+  #- {name: voxel_layer,       type: "costmap_2d::VoxelLayer"}
+  - {name: inflation_layer,   type: "costmap_2d::InflationLayer"}
+
 #For this example we'll configure the costmap in voxel-grid mode
 obstacle_layer:
   map_type: voxel
@@ -39,5 +46,6 @@ sonar_layer:
   topics: [ '/ultrasonic_fr', '/ultrasonic_fm', '/ultrasonic_fl', '/ultrasonic_br', '/ultrasonic_bm', '/ultrasonic_bl', '/ultrasonic_rm', '/ultrasonic_lm', '/ultrasonic_r', '/ultrasonic_l' ]
   no_readings_timeout: 1.0
   clear_on_max_reading: true
+
 
 
