@@ -178,6 +178,66 @@
       <origin xyz="0.2 0 0.3" rpy="0 0 ${M_PI}"/>
     </joint>
 
+
+  <!-- Orbbec camera -->
+  <link name="camera_rgb_frame">
+      <visual>
+          <origin xyz="0 0 0" rpy="0 1.57 0"/>
+          <geometry>
+              <box size="0.01 0.01 0.01"/>
+          </geometry>
+          <material name="dark_grey">
+              <color rgba="0.1 0.1 0.1 1"/>
+          </material>
+      </visual>
+  </link>
+  <link name="camera_link">
+      <visual>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <geometry>
+              <box size="0.01 0.01 0.01"/>
+          </geometry>
+          <material name="light_grey">
+              <color rgba="0.8 0.8 0.8 0.8"/>
+          </material>
+      </visual>
+  </link>
+  <link name="camera_depth_frame" />
+  <link name="camera_depth_optical_frame" />
+  <link name="camera_rgb_optical_frame" />
+
+  <joint name="chassis_orbbec_joint" type="fixed">
+    <parent link="chassis_link"/>
+    <child link="camera_link"/>
+    <origin xyz="0.2 0 0.3" rpy="0 0 ${M_PI}"/>
+  </joint>
+
+  <joint name="orbbec_rgb_camera_joint" type="fixed">
+    <parent link="camera_link"/>
+    <child link="camera_rgb_frame"/>
+    <origin xyz="0 0.06 0" rpy="0 0 0" />
+  </joint>
+
+  <joint name="orbbec_depth_camera_joint" type="fixed">
+    <parent link="camera_link"/>
+    <child link="camera_depth_frame"/>
+    <origin xyz="0 0 0" rpy="-1.5707963267948966 0 -1.5707963267948966" />
+  </joint>
+
+  <joint name="orbbec_depth_optical_joint" type="fixed">
+    <parent link="camera_depth_frame"/>
+    <child link="camera_depth_optical_frame"/>
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+
+  <joint name="orbbec_rgb_optical_joint" type="fixed">
+    <parent link="camera_rgb_frame"/>
+    <child link="camera_rgb_optical_frame"/>
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+
+
+
   <wheel fb="back" lr="left" parent="chassis_link" translateY="-0.24" translateX="0.0" translateZ="-0.006" wheel_radius="0.1225" wheel_height="0.032" flip="1"/>
   <wheel fb="back" lr="right" parent="chassis_link" translateY="0.24" translateX="0.0" translateZ="-0.006" wheel_radius="0.1225" wheel_height="0.032" flip="1"/>
 
