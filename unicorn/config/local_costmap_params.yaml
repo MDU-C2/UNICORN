@@ -2,15 +2,13 @@
 
 local_costmap:
   #We'll publish the voxel grid used by this costmap
-
   plugins:
   - {name: static_layer,     type: "costmap_2d::StaticLayer"}
   - {name: obstacle_layer,    type: "costmap_2d::ObstacleLayer"}
   #- {name: voxel_layer,       type: "costmap_2d::VoxelLayer"}
   - {name: inflation_layer,   type: "costmap_2d::InflationLayer"}
   # - {name: static_layer,     type: "costmap_2d::StaticLayer"}
-
-
+  
   publish_voxel_map: false
 
   #Set the global and robot frames for the costmap
@@ -25,12 +23,13 @@ local_costmap:
   #centered at the robot
   static_map: false
   rolling_window: true
-  width: 5.0
-  height: 5.0
+  width: 4.0
+  height: 6.0
   resolution: 0.15
-  origin_x: -0.25
+  origin_x: 0.25
   origin_y: 0.0
-
+  
+  
   inflation_layer:
     inflation_radius: 3
     cost_scaling_factor: 10.0

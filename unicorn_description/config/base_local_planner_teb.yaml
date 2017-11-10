@@ -12,6 +12,18 @@ GlobalPlanner:
   use_dijkstra: true
   default_tolerance: 0.5
 
+DWAPlannerROS:
+  path_distance_bias: 0.01
+  max_trans_vel: 0.3
+  min_trans_vel: 0.1
+  max_vel_x: 0.3
+  min_vel_x: 0.1
+  max_vel_y: 0.0
+  min_vel_y: 0.0
+  max_rot_vel: 0.5
+  min_rot_vel: 0.2
+  occdist_scale: 1.5
+
 TebLocalPlannerROS:
 
  odom_topic: odom_gazebo
@@ -24,7 +36,7 @@ TebLocalPlannerROS:
  dt_hysteresis: 0.1
  global_plan_overwrite_orientation: False
  max_global_plan_lookahead_dist: 3.0
- feasibility_check_no_poses: 1
+ feasibility_check_no_poses: 4
  orientation_mode: 2
     
  # Robot
@@ -56,14 +68,15 @@ TebLocalPlannerROS:
  xy_goal_tolerance: 0.2 #0.2
  yaw_goal_tolerance: 0.3 #0.3
  free_goal_vel: False
+ force_reinit_new_goal_tolerance: 3.0
     
  # Obstacles
- costmap_obstacles_front_only: false
- min_obstacle_dist: 0.03
+ min_obstacle_dist: 0.1
  include_costmap_obstacles: True
  costmap_obstacles_behind_robot_dist: 1.5
  obstacle_poses_affected: 5
- costmap_converter_plugin: "costmap_converter::CostmapToLinesDBSRANSAC"
+ polygon_obstacle_poses_affected: 5
+ costmap_converter_plugin: "costmap_converter::CostmapToLinesDBSRANSAC" #"costmap_converter::CostmapToPolygonsDBSMCCH"
  costmap_converter_spin_thread: True
  costmap_converter_rate: 5
  obstacle_association_force_inclusion_factor: 60.0
@@ -90,24 +103,23 @@ TebLocalPlannerROS:
  weight_max_vel_theta: 1
  weight_acc_lim_x: 1.0
  weight_acc_lim_theta: 1.0
- weight_kinematics_nh: 1000
- weight_kinematics_forward_drive: 1
+ weight_kinematics_nh: 500
+ weight_kinematics_forward_drive: 500
  weight_kinematics_turning_radius: 0
  weight_optimaltime: 5
  weight_obstacle: 100
- weight_viapoint: 5
+ weight_viapoint: 0.2
  weight_dynamic_obstacle: 10 # not in use yet
- alternative_time_cost: False # not in use yet
 
  # Homotopy Class Planner
 
- enable_homotopy_class_planning: True
+ enable_homotopy_class_planning: False
  enable_multithreading: True
  simple_exploration: False
  max_number_classes: 1
  roadmap_graph_no_samples: 15
  roadmap_graph_area_width: 5
- h_signature_prescaler: 0.5
+ h_signature_prescaler: 0.5 #0.5
  h_signature_threshold: 0.1
  obstacle_keypoint_offset: 0.1
  # obstacle_heading_threshold: 0
