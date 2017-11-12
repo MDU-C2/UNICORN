@@ -514,13 +514,12 @@ namespace zed_wrapper {
                 return;
             }
             sl::Transform initial_position;
-            // Set the initial positon of the Camera Frame at 1m80 above the World Frame
             initial_position.setTranslation(sl::Translation(base_to_cam_transform.getOrigin().x(),
                 base_to_cam_transform.getOrigin().y(), 
                 base_to_cam_transform.getOrigin().z()));
-            initial_position.setRotation(sl::Rotation(sl::Vector4<float>(base_to_cam_transform.getRotation().z(),
-                base_to_cam_transform.getRotation().x(),
+            initial_position.setRotation(sl::Rotation(sl::Vector4<float>(-base_to_cam_transform.getRotation().z(),
                 base_to_cam_transform.getRotation().y(),
+                base_to_cam_transform.getRotation().x(),
                 base_to_cam_transform.getRotation().w())));
             trackParams.initial_world_transform = initial_position;
 
@@ -699,11 +698,11 @@ namespace zed_wrapper {
                         sl::Translation translation = pose.getTranslation();
                         c2s.translation.x = translation(2);
                         c2s.translation.y = -translation(0);
-                        c2s.translation.z = 0;
+                        c2s.translation.z = -translation(1);
                         sl::Orientation quat = pose.getOrientation();
                         //c2s.rotation.x = 0;
-                        c2s.rotation.x = 0;
-                        c2s.rotation.y = 0;
+                        c2s.rotation.x = quat(2);
+                        c2s.rotation.y = -quat(0);
                         c2s.rotation.z = -quat(1);
                         c2s.rotation.w = quat(3);
                         tf2::fromMsg(c2s, camera_transform);

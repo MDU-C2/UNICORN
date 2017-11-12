@@ -16,7 +16,7 @@ local_costmap:
   robot_base_frame: base_link
 
   #Set the update and publish frequency of the costmap
-  update_frequency: 5.0
+  update_frequency: 4.0
   publish_frequency: 4.0
 
   #We'll configure this costmap to be a rolling window... meaning it is always
@@ -24,9 +24,9 @@ local_costmap:
   static_map: false
   rolling_window: true
   width: 4.0
-  height: 6.0
-  resolution: 0.15
-  origin_x: 0.25
+  height: 4.0
+  resolution: 0.1
+  origin_x: 0.0
   origin_y: 0.0
   
   

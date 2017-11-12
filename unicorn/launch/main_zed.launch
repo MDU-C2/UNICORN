@@ -4,7 +4,7 @@
 <arg name="debug" default="false"/>
 <arg name="use_gmapping" default="false"/>
 <arg name="scan_topic" value="scan_filtered"/>
-<arg name="map_file" value="$(find unicorn_slam)/maps/hospital_map_3.yaml"/>
+<arg name="map_file" value="$(find unicorn_slam)/maps/scenario_map.yaml"/>
 <arg name="lidar_ip" default="192.168.0.100" />
 
 <!-- Joint pos gui -->
@@ -49,23 +49,23 @@
         <arg name="base_frame" value="zed_center"/>
         <arg name="camera_frame" value="zed_left_camera"/>
         <arg name="depth_frame" value="zed_depth_camera"/>
-        <arg name="confidence_val" value="50"/>
+        <arg name="confidence_val" value="80"/>
     </include>
 </group> 
 
 <!-- Run a VoxelGrid filter to clean NaNs and downsample the pointcloud output goes to cloud_filtered -->
-<!-- <node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen" />
+<node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen" />
 <node pkg="nodelet" type="nodelet" name="voxel_grid" args="load pcl/VoxelGrid pcl_manager" output="screen">
 <remap from="~input" to="/zed/point_cloud/cloud_registered" />
 <remap from="~output" to="cloud_filtered" />
 <rosparam>
  filter_field_name: z
- filter_limit_min: 0.1
+ filter_limit_min: 0.05
  filter_limit_max: 1.5
  filter_limit_negative: False
  leaf_size: 0.02
 </rosparam>
-</node> -->
+</node>
 
 <!-- load joint controller configurations from YAML file to parameter server -->
 <rosparam file="$(find am_control)/config/joint_position_control.yaml" command="load" />

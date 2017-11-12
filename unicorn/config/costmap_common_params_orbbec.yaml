@@ -6,7 +6,7 @@ footprint_padding: 0.01
 
 #For this example we'll configure the costmap in voxel-grid mode
 obstacle_layer:
-  map_type: voxel
+  map_type: costmap
 
   #Voxel grid specific parameters
   origin_z: 0.0
