@@ -27,6 +27,12 @@
   <xacro:arg name="ultrasonic_rpy" default="0 0 ${M_PI}" />
   <xacro:include filename="$(find unicorn_description)/urdf/ultrasonic_sensor.urdf.xacro" />
 
+  <!-- Camera -->
+  <xacro:arg name="camera_enabled" default="true" />
+  <xacro:arg name="camera_xyz" default="0.3206 0.0 0.6" />
+  <xacro:arg name="camera_rpy" default="0.0 0.0 0.0" />
+  <xacro:include filename="$(find unicorn_description)/urdf/stereo_camera.urdf.xacro" />
+
   <!-- Wheel -->
   <xacro:include filename="$(find am_description)/urdf/wheel.urdf.xacro" />
 
@@ -197,9 +203,44 @@
     <child link="base_laser" />
   </joint>
 
-  <!-- Ultrasonic sensor -->
-  <ultrasonic_sensor frame="base_ultrasonic_fr" topic="fr" robot_namespace="$(arg robot_namespace)"/>
+  <!-- Camera -->
+  <xacro:if value="$(arg camera_enabled)">
+    <stereo_camera frame="camera_left_link" topic="pointcloud" robot_namespace="$(arg robot_namespace)"/>
+    <!-- generate an optical frame http://www.ros.org/reps/rep-0103.html#suffix-frames
+        so that ros and opencv can operate on the camera frame correctly -->
+    <joint name="camera_optical_joint" type="fixed">
+      <!-- these values have to be these values otherwise the gazebo camera image
+          won't be aligned properl  y with the frame it is supposedly originating from -->
+      <origin xyz="$(arg camera_xyz)" rpy="0 0 ${-pi}"/>
+      <parent link="base_link_gazebo"/>
+      <child link="camera_left_link"/>
+    </joint>
+    <joint name="camera_depth_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
+      <parent link="camera_left_link"/>
+      <child link="camera_left_depth_link"/>
+    </joint>
+  </xacro:if>  
 
+  <!-- GPS -->
+  <gazebo>
+    <plugin name="novatel_gps_sim" filename="libhector_gazebo_ros_gps.so">
+      <alwaysOn>1</alwaysOn>
+      <updateRate>10.0</updateRate>
+      <bodyName>chassis_link</bodyName>
+      <topicName>gps</topicName>
+      <velocityTopicName>gps_velocity</velocityTopicName>
+      <drift>5.0 5.0 5.0</drift>
+      <gaussianNoise>0.1 0.1 0.1</gaussianNoise>
+      <velocityDrift>0 0 0</velocityDrift>
+      <velocityGaussianNoise>0.1 0.1 0.1</velocityGaussianNoise>
+    </plugin>
+  </gazebo>
+
+
+  <!-- Ultrasonic sensors -->
+  <!-- 
+  <ultrasonic_sensor frame="base_ultrasonic_fr" topic="fr" robot_namespace="$(arg robot_namespace)"/>
   <joint name="ultrasonic_mount_joint_fr" type="fixed">
     <origin xyz="-0.2 0.2 0.0" rpy="0 0 ${M_PI + M_PI/4}"/>
     <parent link="base_link_gazebo"/>
@@ -207,7 +248,6 @@
   </joint>
 
   <ultrasonic_sensor frame="base_ultrasonic_fm" topic="fm" robot_namespace="$(arg robot_namespace)"/>
-
   <joint name="ultrasonic_mount_joint_fm" type="fixed">
     <origin xyz="-0.2 0.0 0.0" rpy="0 0 ${M_PI}"/>
     <parent link="base_link_gazebo"/>
@@ -215,7 +255,6 @@
   </joint>
 
   <ultrasonic_sensor frame="base_ultrasonic_fl" topic="fl" robot_namespace="$(arg robot_namespace)"/>
-
   <joint name="ultrasonic_mount_joint_fl" type="fixed">
     <origin xyz="-0.2 -0.2 0.0" rpy="0 0 ${M_PI - M_PI/4}"/>
     <parent link="base_link_gazebo"/>
@@ -223,7 +262,6 @@
   </joint>
 
   <ultrasonic_sensor frame="base_ultrasonic_r" topic="r" robot_namespace="$(arg robot_namespace)"/>
-
   <joint name="ultrasonic_mount_joint_r" type="fixed">
     <origin xyz="0.4 0.25 0.0" rpy="0 -${M_PI/64} ${3*M_PI/4}"/>
     <parent link="base_link_gazebo"/>
@@ -231,7 +269,6 @@
   </joint>
 
   <ultrasonic_sensor frame="base_ultrasonic_l" topic="l" robot_namespace="$(arg robot_namespace)"/>
-
   <joint name="ultrasonic_mount_joint_l" type="fixed">
     <origin xyz="0.4 -0.25 0.0" rpy="0 -${M_PI/64} -${3*M_PI/4}"/>
     <parent link="base_link_gazebo"/>
@@ -239,7 +276,6 @@
   </joint>
 
   <ultrasonic_sensor frame="base_ultrasonic_rm" topic="rm" robot_namespace="$(arg robot_namespace)"/>
-
   <joint name="ultrasonic_mount_joint_rm" type="fixed">
     <origin xyz="0.15 0.25 0.0" rpy="0 -${M_PI/64} ${M_PI/4}"/>
     <parent link="base_link_gazebo"/>
@@ -261,7 +297,6 @@
   </joint>
 
   <ultrasonic_sensor frame="base_ultrasonic_bm" topic="bm" robot_namespace="$(arg robot_namespace)"/>
-
   <joint name="ultrasonic_mount_joint_bm" type="fixed">
     <origin xyz="0.5 0.0 0.0" rpy="0 -${M_PI/64} 0"/>
     <parent link="base_link_gazebo"/>
@@ -269,14 +304,13 @@
   </joint>
 
   <ultrasonic_sensor frame="base_ultrasonic_bl" topic="bl" robot_namespace="$(arg robot_namespace)"/>
-
   <joint name="ultrasonic_mount_joint_bl" type="fixed">
     <origin xyz="0.5 -0.2 0.0" rpy="0 -${M_PI/64} ${M_PI/4}"/>
     <parent link="base_link_gazebo"/>
     <child link="base_ultrasonic_bl" />
   </joint>
 
-
+  -->
 
   <!-- GAZEBO STUFF -->
   <gazebo>

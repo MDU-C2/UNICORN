@@ -63,7 +63,7 @@
           <pointCloudTopicName>/camera/depth/points</pointCloudTopicName>
           <frameName>camera_left_depth_link</frameName>
           <robotNamespace>${robot_namespace}</robotNamespace>
-          <pointCloudCutoff>10.0</pointCloudCutoff>
+          <pointCloudCutoff>0.05</pointCloudCutoff>
           <distortionK1>0</distortionK1>
           <distortionK2>0</distortionK2>
           <distortionK3>0</distortionK3>
