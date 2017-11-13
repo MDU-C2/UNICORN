@@ -16,6 +16,23 @@ int main(int argc, char **argv)
 	return 0;
 }
 
+RangeSensor::RangeSensor(std::string sensor_topic)
+: TOPIC(sensor_topic)
+{
+	range_sub_ = n_.subscribe(TOPIC.c_str(), 0, &RangeSensor::rangeCallback, this);
+	range_ = 4.0;
+}
+
+void RangeSensor::rangeCallback(const sensor_msgs::Range& msg)
+{
+	range_ = msg.range;
+}
+
+float RangeSensor::getRange()
+{
+	return range_;
+}
+
 UnicornState::UnicornState() 
 : move_base_clt_("move_base", true)
 {
@@ -52,11 +69,12 @@ UnicornState::UnicornState()
   amcl_global_clt_ = n_.serviceClient<std_srvs::Empty>("/global_localization");
   cmd_vel_pub_ = n_.advertise<geometry_msgs::Twist>("/unicorn/cmd_vel", 0);
   odom_sub_ = n_.subscribe(odom_topic.c_str(), 0, &UnicornState::odomCallback, this);
-  range_sub_ = n_.subscribe("ultrasonic_bm", 0, &UnicornState::rangeCallback, this);
+  range_sensor_list_["ultrasonic_bm"] = new RangeSensor("ultrasonic_bm");
+  range_sensor_list_["ultrasonic_br"] = new RangeSensor("ultrasonic_br");
+  range_sensor_list_["ultrasonic_bl"] = new RangeSensor("ultrasonic_bl");
 
   state_ = current_state::MANUAL;
   loading_state_ = current_state::ALIGNING;
-  back_sensor_range_ = 4.0;
   move_base_active_ = 0;
 }
 void UnicornState::globalLocalization()
@@ -186,11 +204,6 @@ void UnicornState::odomCallback(const nav_msgs::Odometry& msg)
 	current_vel_ = msg.twist.twist.linear.x;
 }
 
-void UnicornState::rangeCallback(const sensor_msgs::Range& msg)
-{
-	back_sensor_range_ = msg.range;
-}
-
 void UnicornState::active()
 {
 	int c = getCharacter();
@@ -242,7 +255,7 @@ void UnicornState::active()
 				if (!move_base_active_)
 		    	{
 		    		ROS_INFO("[unicorn_statemachine] Aligning with garbage disposal...");
-		    		sendMoveCmd(0,0,3.14);
+		    		sendMoveCmd(0,0,M_PI);
 		    		move_base_active_ = 1;
 		    		return;
 		    	}
@@ -258,7 +271,7 @@ void UnicornState::active()
 			*/
 			case current_state::ENTERING:
 				man_cmd_vel_.angular.z = 0;
-				if(back_sensor_range_ > 0.2)
+				if(range_sensor_list_["ultrasonic_bm"]->getRange() > 0.2)
 				{
 					man_cmd_vel_.linear.x = -0.13;
 				}
@@ -282,7 +295,7 @@ void UnicornState::active()
 		    		ROS_INFO("[unicorn_statemachine] Exiting garbage disposal");
 		    		man_cmd_vel_.linear.x = 0.13;
 				}
-				if (back_sensor_range_ > 1.5)
+				if (range_sensor_list_["ultrasonic_bm"]->getRange() > 1.5)
 				{
 					man_cmd_vel_.linear.x = 0.0;
 					ROS_INFO("[unicorn_statemachine] Loading complete!");

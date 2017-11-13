@@ -142,6 +142,9 @@ target_link_libraries(am_unicorn_interface ${catkin_LIBRARIES})
 add_executable(unicorn_statemachine src/unicorn_statemachine.cpp)
 target_link_libraries(unicorn_statemachine ${catkin_LIBRARIES})
 
+add_executable(range_sensor_driver src/range_sensor_driver.cpp)
+target_link_libraries(range_sensor_driver ${catkin_LIBRARIES})
+
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure

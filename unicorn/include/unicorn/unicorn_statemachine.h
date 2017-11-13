@@ -41,7 +41,23 @@ namespace current_state
 		ENTERING
 	};
 }
+
+class RangeSensor
+{
+public:
+	RangeSensor(std::string sensor_topic);
+	const std::string TOPIC;
+	float getRange();
+	void rangeCallback(const sensor_msgs::Range& msg);
+private:
+	ros::NodeHandle n_;
+	ros::Subscriber range_sub_;
+
+	float range_;	
+};
+
 /** @brief Main node class for unicorn_statemachine.
+*
 * C++ API for sending commands to the robot 
 * during the debugging process.
 */
@@ -78,6 +94,7 @@ public:
 	*/
 	void sendGoal(float x, float y, float yaw);
 	/** @brief Sends a goal to move_base.
+	*
 	* The goal is relative to current robot position.
 	* @param x,y target point on map.
 	* @param yaw target heading.
@@ -91,7 +108,6 @@ private:
 	ros::ServiceClient amcl_global_clt_;
 	ros::Publisher move_base_cancel_pub_;
 	ros::Subscriber odom_sub_;
-	ros::Subscriber range_sub_;
 	geometry_msgs::Twist man_cmd_vel_;
 	MoveBaseClient move_base_clt_; 		/**< Client to send commands to move_base*/
 	std::string frame_id_;
@@ -103,7 +119,8 @@ private:
 	double current_vel_;
 	double MAX_ANGULAR_VEL;
 	double MAX_LINEAR_VEL;
-	float back_sensor_range_;
+
+	std::map<std::string, RangeSensor*> range_sensor_list_;
 };
 
 #endif

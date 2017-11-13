@@ -10,7 +10,7 @@ NavfnROS:
 GlobalPlanner:
   allow_unknown: false
   use_dijkstra: true
-  default_tolerance: 0.5
+  default_tolerance: 0.2
 
 TebLocalPlannerROS:
 
@@ -53,8 +53,8 @@ TebLocalPlannerROS:
 
  # GoalTolerance
     
- xy_goal_tolerance: 0.2 #0.2
- yaw_goal_tolerance: 0.3 #0.3
+ xy_goal_tolerance: 0.02 #0.2
+ yaw_goal_tolerance: 0.0174 #0.3
  free_goal_vel: False
  force_reinit_new_goal_tolerance: 3.0
     
