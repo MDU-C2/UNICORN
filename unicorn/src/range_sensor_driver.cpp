@@ -20,8 +20,8 @@ RangeSensor::RangeSensor(std::string sensor_topic)
 {
 	range_pub_ = n_.advertise<sensor_msgs::Range>(TOPIC.c_str(), 0, this);
 	range_msg_.radiation_type = sensor_msgs::Range::ULTRASOUND;
-	range_msg_.min_range = 0.03;
-	range_msg_.max_range = 4.0;
+	range_msg_.min_range = 20.0;
+	range_msg_.max_range = 200.0;
 	range_msg_.field_of_view = 0;
 }
 
@@ -38,16 +38,17 @@ void RangeSensor::publishRange()
 
 RangeDriver::RangeDriver()
 {
-	std::string SERIAL_PORT;
-	if(n_.getParam("serial_port", SERIAL_PORT))
+	std::string serial_port;
+	if(n_.getParam("serial_port", serial_port))
 	{
-		SERIAL_PORT = SERIAL_PORT;
+		SERIAL_PORT_ = serial_port;
+		ROS_INFO("Trying serial port: %s", serial_port.c_str());
 	}
 	else
 	{
-		SERIAL_PORT = "/dev/ttyUSB0";
+		SERIAL_PORT_ = "/dev/ttyUSB0";
 	}
-	file_.open(SERIAL_PORT.c_str());
+	file_.open(SERIAL_PORT_.c_str());
 	if ( (file_.rdstate() & std::ifstream::failbit ) != 0 )
 	{
 		ROS_ERROR("[range_driver] Failed to find serial port!");
@@ -68,7 +69,7 @@ RangeDriver::RangeDriver()
     	if (file_ >> range_data_)
     	{
     		int i = 0, index = 0;
-	    	while(index != std::string::npos)
+	    	while(index != range_data_.npos)
 	    	{
 	    		index = range_data_.find_first_of(':', index+1);
 	    		range_sensor_list_.push_back(new RangeSensor(std::string("/ultrasonic_")+boost::lexical_cast<std::string>(i)));
@@ -91,11 +92,21 @@ void RangeDriver::readLine()
 {
 	if (file_ >> range_data_)
 	{
-		int index = 0;
-		for (int i = 0; i < range_sensor_list_.size(); ++i)
+		int i = 0, index = 0;
+		while(index != range_data_.npos)
 		{
-			index = range_data_.find_first_of(':', index+1);
-			range_sensor_list_[i]->setRange(boost::lexical_cast<float>(range_data_.substr(index,3)));
+			index = range_data_.find_first_of(':', index);
+			index++;
+			if (index != 0)
+			{
+				range_sensor_list_[i]->setRange(boost::lexical_cast<float>(range_data_.substr(index,3)));
+				i++;
+			}
+			else
+			{
+				return;
+			}
+			
 		}
 	}
 }

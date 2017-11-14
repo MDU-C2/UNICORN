@@ -28,7 +28,7 @@
   <xacro:include filename="$(find unicorn_description)/urdf/ultrasonic_sensor.urdf.xacro" />
 
   <!-- Camera -->
-  <xacro:arg name="camera_enabled" default="true" />
+  <xacro:arg name="camera_enabled" default="false" />
   <xacro:arg name="camera_xyz" default="0.3206 0.0 0.6" />
   <xacro:arg name="camera_rpy" default="0.0 0.0 0.0" />
   <xacro:include filename="$(find unicorn_description)/urdf/stereo_camera.urdf.xacro" />
@@ -239,7 +239,7 @@
 
 
   <!-- Ultrasonic sensors -->
-  <!-- 
+  
   <ultrasonic_sensor frame="base_ultrasonic_fr" topic="fr" robot_namespace="$(arg robot_namespace)"/>
   <joint name="ultrasonic_mount_joint_fr" type="fixed">
     <origin xyz="-0.2 0.2 0.0" rpy="0 0 ${M_PI + M_PI/4}"/>
@@ -310,7 +310,7 @@
     <child link="base_ultrasonic_bl" />
   </joint>
 
-  -->
+ 
 
   <!-- GAZEBO STUFF -->
   <gazebo>

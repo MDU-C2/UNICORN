@@ -37,6 +37,6 @@ obstacle_layer:
      marking: true, clearing: false, max_obstacle_height: 1, min_obstacle_height: 0.08}
 
   point_cloud_sensor: {sensor_frame: zed_center, data_type: PointCloud2, topic: /cloud_filtered, expected_update_rate: 1.0,
-     marking: true, clearing: true, max_obstacle_height: 0.6, min_obstacle_height: 0.0, observation_persistence: 3.0, mark_threshold: 9}
+     marking: true, clearing: true, max_obstacle_height: 0.6, min_obstacle_height: 0.1, observation_persistence: 0.0, mark_threshold: 9}
  # point_cloud_sensor: {sensor_frame: camera_depth_optical_frame, data_type: PointCloud2, topic: /camera/depth/points, expected_update_rate: 1.0,
  #    marking: true, clearing: true, max_obstacle_height: 1, min_obstacle_height: 0.1, observation_persistence: 0.0, mark_threshold: 9}

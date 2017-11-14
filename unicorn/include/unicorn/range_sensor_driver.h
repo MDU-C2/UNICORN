@@ -51,7 +51,7 @@ public:
 	void publishData();
 private:
 	ros::NodeHandle n_;
-	std::string SERIAL_PORT;
+	std::string SERIAL_PORT_;
 	std::vector<RangeSensor*> range_sensor_list_; /**< List of active range sensors. */
 	std::string range_data_; 					  /**< Serial data buffer. */
     std::fstream file_;

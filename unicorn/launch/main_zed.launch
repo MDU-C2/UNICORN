@@ -14,6 +14,10 @@
 <rosparam param="lower_angle">-1.57</rosparam>
 <rosparam param="upper_angle">1.57</rosparam>
 
+<!-- Range sensor -->
+<rosparam param="serial_port">/dev/ttyACM0</rosparam>
+<rosparam param="range_sensor_list">["bm"]</rosparam>
+
 <group if="$(arg use_gmapping)">
 
 	<!-- Launch grid-mapping -->
@@ -60,7 +64,7 @@
 <remap from="~output" to="cloud_filtered" />
 <rosparam>
  filter_field_name: z
- filter_limit_min: 0.05
+ filter_limit_min: 0.2
  filter_limit_max: 1.5
  filter_limit_negative: False
  leaf_size: 0.02
@@ -79,10 +83,21 @@
 	output="screen">
 </node>
 
+<!-- Starts interface between automower and unicorn to enable backward driving -->
+<node name="range_sensor_driver" 
+	pkg="unicorn" 
+	type="range_sensor_driver" 
+	output="screen">
+	<param name="serial_port" value="/dev/ttyACM0"/>
+<rosparam>
+ range_sensor_list: [bm]
+</rosparam>
+</node>
+
 
 <!-- Start the am_driver -->
 <node name="am_driver_safe" pkg="am_driver_safe" type="am_driver_safe_node" output="screen">
-	<param name="serialPort" value="/dev/ttyACM0" type="str" />
+	<param name="serialPort" value="/dev/ttyACM1" type="str" />
 	<param name="printCharge" value="false"/>
 	<param name="publishTf" value="1"/>
 	<param name="pitchAndRoll" value="false"/>

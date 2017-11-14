@@ -20,7 +20,7 @@ RangeSensor::RangeSensor(std::string sensor_topic)
 : TOPIC(sensor_topic)
 {
 	range_sub_ = n_.subscribe(TOPIC.c_str(), 0, &RangeSensor::rangeCallback, this);
-	range_ = 4.0;
+	range_ = 200.0;
 }
 
 void RangeSensor::rangeCallback(const sensor_msgs::Range& msg)
@@ -217,6 +217,7 @@ void UnicornState::active()
 	  	{
 	    	ROS_INFO("[unicorn_statemachine] Goal reached");
 	    	state_ = current_state::IDLE;
+	    	printUsage();
 	  	}
 		break;
 
@@ -255,7 +256,7 @@ void UnicornState::active()
 				if (!move_base_active_)
 		    	{
 		    		ROS_INFO("[unicorn_statemachine] Aligning with garbage disposal...");
-		    		sendMoveCmd(0,0,M_PI);
+		    		sendGoal(0,0,-1.42);
 		    		move_base_active_ = 1;
 		    		return;
 		    	}
@@ -267,19 +268,30 @@ void UnicornState::active()
 			    }
 				break;
 			/** Moves the machine close to a wall.
-			* Stops the machine when range to wall is below 20cm.
+			* Slows down the machine when range to wall is below 30cm.
 			*/
 			case current_state::ENTERING:
 				man_cmd_vel_.angular.z = 0;
-				if(range_sensor_list_["ultrasonic_bm"]->getRange() > 0.2)
+				ROS_INFO("current range: %f", range_sensor_list_["ultrasonic_bm"]->getRange());
+				if((range_sensor_list_["ultrasonic_bm"]->getRange() > 30.0)
+					&&(range_sensor_list_["ultrasonic_bm"]->getRange() < 200.0))
 				{
-					man_cmd_vel_.linear.x = -0.13;
+					// ROS_INFO("current range: %f", range_sensor_list_["ultrasonic_bm"]->getRange());
+					man_cmd_vel_.linear.x = -0.17;
 				}
 				else
 				{
-					man_cmd_vel_.linear.x = 0.0;
-					loading_state_ = current_state::EXITING;
-					ROS_INFO("[unicorn_statemachine] Entered garbage disposal. Waiting for exit signal");
+					ROS_INFO("Current vel: %f", current_vel_);
+					if (std::abs(current_vel_) < 0.05)
+					{
+						man_cmd_vel_.linear.x = 0.0;
+						loading_state_ = current_state::EXITING;
+						ROS_INFO("[unicorn_statemachine] Entered garbage disposal. Waiting for exit signal");
+					}
+					else
+					{
+						man_cmd_vel_.linear.x = -0.1;
+					}
 				}
 				cmd_vel_pub_.publish(man_cmd_vel_);
 
@@ -293,9 +305,10 @@ void UnicornState::active()
 		    		ROS_INFO("[unicorn_statemachine] Exiting garbage disposal");		    		
 		    		return;*/
 		    		ROS_INFO("[unicorn_statemachine] Exiting garbage disposal");
-		    		man_cmd_vel_.linear.x = 0.13;
+		    		man_cmd_vel_.linear.x = 0.15;
 				}
-				if (range_sensor_list_["ultrasonic_bm"]->getRange() > 1.5)
+				if ((range_sensor_list_["ultrasonic_bm"]->getRange() > 100.0)
+					&&(range_sensor_list_["ultrasonic_bm"]->getRange() < 200.0))
 				{
 					man_cmd_vel_.linear.x = 0.0;
 					ROS_INFO("[unicorn_statemachine] Loading complete!");
