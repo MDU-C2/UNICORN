@@ -16,6 +16,7 @@ Please read through the coding style guides we are using
 sudo apt-get install ros-kinetic-effort-controllers
 sudo apt-get install ros-kinetic-gmapping
 sudo apt-get install ros-kinetic-gazebo-ros
+sudo apt-get install ros-kinetic-navigation
 sudo apt-get install ros-kinetic-range-sensor-layer
 cd ~/catkin_ws/src
 git clone https://github.com/HusqvarnaResearch/hrp.git

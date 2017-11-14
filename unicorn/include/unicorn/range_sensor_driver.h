@@ -24,9 +24,12 @@ public:
 	*
 	*	Initializes limitations on the ultrasonic sensor such as max, min ranges view-angle.
 	*/
-	RangeSensor(std::string sensor_topic);
+	RangeSensor(std::string sensor_topic, std::string sensor_frame);
     void publishRange();
-    /** @brief Set range and update timestamp. */
+    /** @brief Set range and update timestamp.
+    *
+    *	@param float range: measured distance in centimeters 
+    */
     void setRange(float range);
     const std::string TOPIC;
 private:

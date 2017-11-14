@@ -17,7 +17,7 @@ LaserFilter::LaserFilter()
 {
   scan_sub_ = n_.subscribe("/scan", 0, &LaserFilter::scanCallback, this);
   scan_pub_ = n_.advertise<sensor_msgs::LaserScan>("/scan_filtered", 0);
-  if (n_.getParam("lower_angle", lower_angle_))
+  if (n_.getParam("/laser_filter/lower_angle", lower_angle_))
   {
     ROS_INFO("laser_filter: Lower angle threshold: %f", lower_angle_);
   }
@@ -26,7 +26,7 @@ LaserFilter::LaserFilter()
     ROS_WARN("laser_filter: Lower angle threshold not set");
     lower_angle_ = -1.57;
   }
-  if (n_.getParam("upper_angle", upper_angle_))
+  if (n_.getParam("/laser_filter/upper_angle", upper_angle_))
   {
     ROS_INFO("laser_filter: Upper angle threshold: %f", upper_angle_);
   }

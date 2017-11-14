@@ -5,6 +5,7 @@ local_costmap:
   plugins:
   - {name: static_layer,     type: "costmap_2d::StaticLayer"}
   - {name: obstacle_layer,    type: "costmap_2d::ObstacleLayer"}
+  - {name: sonar_layer,       type: "range_sensor_layer::RangeSensorLayer"}
   #- {name: voxel_layer,       type: "costmap_2d::VoxelLayer"}
   - {name: inflation_layer,   type: "costmap_2d::InflationLayer"}
   # - {name: static_layer,     type: "costmap_2d::StaticLayer"}
@@ -33,3 +34,4 @@ local_costmap:
   inflation_layer:
     inflation_radius: 3
     cost_scaling_factor: 10.0
+

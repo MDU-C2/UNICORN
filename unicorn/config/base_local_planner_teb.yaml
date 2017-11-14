@@ -38,7 +38,7 @@ TebLocalPlannerROS:
  min_vel_theta: -0.4
  acc_lim_x: 0.5
  acc_lim_y: 0.0
- acc_lim_theta: 0.7
+ acc_lim_theta: 0.4
  min_turning_radius: 0.0
  footprint_model: # types: "point", "circular", "two_circles", "line", "polygon"
    # type: "line"

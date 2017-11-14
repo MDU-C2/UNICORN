@@ -10,14 +10,6 @@
 <!-- Joint pos gui -->
 <param name="use_gui" value="false"/>
 
-<!-- Lidar angle limitations (rad) -->
-<rosparam param="lower_angle">-1.57</rosparam>
-<rosparam param="upper_angle">1.57</rosparam>
-
-<!-- Range sensor -->
-<rosparam param="serial_port">/dev/ttyACM0</rosparam>
-<rosparam param="range_sensor_list">["bm"]</rosparam>
-
 <group if="$(arg use_gmapping)">
 
 	<!-- Launch grid-mapping -->
@@ -88,9 +80,8 @@
 	pkg="unicorn" 
 	type="range_sensor_driver" 
 	output="screen">
-	<param name="serial_port" value="/dev/ttyACM0"/>
 <rosparam>
- range_sensor_list: [bm]
+ serial_port: "/dev/ttyACM0"
 </rosparam>
 </node>
 
@@ -137,7 +128,12 @@
 <!-- <node name="initialpose_publisher" pkg="unicorn" type="pub_initialpose"/> -->
 
 <!-- Starts laser filter to enable limitation of laserscan angle -->
-<node name="laser_filter" pkg="unicorn" type="laser_scan_filter" output="screen"/>
+<node name="laser_filter" pkg="unicorn" type="laser_scan_filter" output="screen">
+<rosparam>
+ upper_angle: 1.57
+ lower_angle: -1.57
+</rosparam>
+</node>
 
 
 <node pkg="robot_localization" type="ukf_localization_node" name="ukf_se" clear_params="true">
