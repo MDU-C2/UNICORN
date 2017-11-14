@@ -11,11 +11,16 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  nav_msgs
+  actionlib
+  actionlib_msgs
   tf
+  geometry_msgs
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -55,10 +60,11 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
+#  add_service_files(
+#  	DIRECTORY
+#  	srv
+#    FILES
+#    init_pose.srv
 # )
 
 ## Generate actions in the 'action' folder
@@ -69,10 +75,11 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+  generate_messages(
+   DEPENDENCIES
+   std_msgs
+   geometry_msgs
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -117,7 +124,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -125,6 +132,18 @@ include_directories(
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/unicorn.cpp
 # )
+
+add_executable(laser_scan_filter src/laser_scan_filter.cpp)
+target_link_libraries(laser_scan_filter ${catkin_LIBRARIES})
+
+add_executable(am_unicorn_interface src/am_unicorn_interface.cpp)
+target_link_libraries(am_unicorn_interface ${catkin_LIBRARIES})
+
+add_executable(unicorn_statemachine src/unicorn_statemachine.cpp)
+target_link_libraries(unicorn_statemachine ${catkin_LIBRARIES})
+
+add_executable(range_sensor_driver src/range_sensor_driver.cpp)
+target_link_libraries(range_sensor_driver ${catkin_LIBRARIES})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
