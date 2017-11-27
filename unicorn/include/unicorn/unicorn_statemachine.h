@@ -13,6 +13,7 @@
 #include <move_base_msgs/MoveBaseAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <sensor_msgs/Range.h>
+#include <unicorn/CharlieCmd.h>
 
 /* C / C++ */
 #include <iostream>
@@ -26,6 +27,8 @@ typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseCl
 template <typename T> int sgn(T val) {
     return (T(0) < val) - (val < T(0));
 }
+
+
 
 /** Current state of the robot. */
 namespace current_state
@@ -42,10 +45,20 @@ namespace current_state
 	};
 }
 
+class RefuseBin
+{
+public:
+	RefuseBin();
+	float x;
+	float y;
+	float yaw;
+};
+
+/** @brief Class for reading data of rangesensors*/
 class RangeSensor
 {
 public:
-	RangeSensor(std::string sensor_topic);
+	RangeSensor(const std::string& sensor_topic);
 	const std::string TOPIC;
 	float getRange();
 	void rangeCallback(const sensor_msgs::Range& msg);
@@ -77,6 +90,7 @@ public:
 	* @param c input key.
 	*/
 	void processKey(int c);
+	int getInput(float& val);
 	/** @brief Prints key usage.*/
 	void printUsage();
 	/** @brief Outer loop.*/
@@ -92,7 +106,7 @@ public:
 	* @param x,y target point on map.
 	* @param yaw target heading.
 	*/
-	void sendGoal(float x, float y, float yaw);
+	int sendGoal(const float& x, float y, float yaw);
 	/** @brief Sends a goal to move_base.
 	*
 	* The goal is relative to current robot position.
@@ -102,16 +116,20 @@ public:
 	void sendMoveCmd(float x, float y, float yaw);
 	/** @brief Cancels all current goals.*/
 	void cancelGoal();
+	bool accGoalServer(unicorn::CharlieCmd::Request  &req,
+         unicorn::CharlieCmd::Response &res);
 private:
 	ros::NodeHandle n_;
 	ros::Publisher cmd_vel_pub_;
 	ros::ServiceClient amcl_global_clt_;
+	ros::ServiceServer acc_cmd_srv_;
 	ros::Publisher move_base_cancel_pub_;
 	ros::Subscriber odom_sub_;
 	geometry_msgs::Twist man_cmd_vel_;
 	MoveBaseClient move_base_clt_; 		/**< Client to send commands to move_base*/
 	std::string frame_id_;
 	tf::TransformListener tf_listener_;
+	RefuseBin refuse_bin_pose_;
 
 	int state_, loading_state_; 
 	int move_base_active_;
@@ -120,7 +138,7 @@ private:
 	double MAX_ANGULAR_VEL;
 	double MAX_LINEAR_VEL;
 
-	std::map<std::string, RangeSensor*> range_sensor_list_;
+	std::map<std::string, RangeSensor*> range_sensor_list_; /**< List of active rangesensors*/
 };
 
 #endif

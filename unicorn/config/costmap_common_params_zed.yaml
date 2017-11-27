@@ -34,12 +34,12 @@ obstacle_layer:
   observation_sources: laser_scan_sensor point_cloud_sensor
 
   laser_scan_sensor: {sensor_frame: base_laser, data_type: LaserScan, topic: /scan_filtered, expected_update_rate: 0.5,
-     marking: true, clearing: false, max_obstacle_height: 1, min_obstacle_height: 0.08}
+     marking: true, clearing: true, max_obstacle_height: 1, min_obstacle_height: 0.08}
 
   point_cloud_sensor: {sensor_frame: zed_center, data_type: PointCloud2, topic: /cloud_filtered, expected_update_rate: 1.0,
      marking: true, clearing: true, max_obstacle_height: 0.6, min_obstacle_height: 0.1, observation_persistence: 0.0, mark_threshold: 9}
  
-sonar_layer:
-  topics: ['/ultrasonic_bm']
-  no_readings_timeout: 1.0
-  clear_on_max_reading: true
+# sonar_layer:
+#   topics: ['/ultrasonic_bm']
+#   no_readings_timeout: 1.0
+#   clear_on_max_reading: true

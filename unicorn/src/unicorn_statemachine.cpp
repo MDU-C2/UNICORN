@@ -16,7 +16,14 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-RangeSensor::RangeSensor(std::string sensor_topic)
+RefuseBin::RefuseBin()
+{
+	x = 0;
+	y = 0;
+	yaw = 0;
+}
+
+RangeSensor::RangeSensor(const std::string& sensor_topic)
 : TOPIC(sensor_topic)
 {
 	range_sub_ = n_.subscribe(TOPIC.c_str(), 0, &RangeSensor::rangeCallback, this);
@@ -26,6 +33,7 @@ RangeSensor::RangeSensor(std::string sensor_topic)
 void RangeSensor::rangeCallback(const sensor_msgs::Range& msg)
 {
 	range_ = msg.range;
+
 }
 
 float RangeSensor::getRange()
@@ -69,6 +77,7 @@ UnicornState::UnicornState()
   amcl_global_clt_ = n_.serviceClient<std_srvs::Empty>("/global_localization");
   cmd_vel_pub_ = n_.advertise<geometry_msgs::Twist>("/unicorn/cmd_vel", 0);
   odom_sub_ = n_.subscribe(odom_topic.c_str(), 0, &UnicornState::odomCallback, this);
+  acc_cmd_srv_ = n_.advertiseService("cmd_charlie", &UnicornState::accGoalServer, this);
   range_sensor_list_["ultrasonic_bm"] = new RangeSensor("ultrasonic_bm");
   range_sensor_list_["ultrasonic_br"] = new RangeSensor("ultrasonic_br");
   range_sensor_list_["ultrasonic_bl"] = new RangeSensor("ultrasonic_bl");
@@ -128,6 +137,38 @@ std::string UnicornState::stateToString(int state)
 	}
 }
 
+int UnicornState::getInput(float& val)
+{
+	float tmp;
+	if ( !(std::cin >> tmp) )
+    {
+      std::cin.clear();
+      std::cin.ignore();
+      ROS_ERROR("Incorrect entry. Try again.");
+      printUsage();
+      return 0;
+    }
+    val = tmp;
+    return 1;
+}
+
+bool UnicornState::accGoalServer(unicorn::CharlieCmd::Request  &req, unicorn::CharlieCmd::Response &res)
+{
+	if (state_ == current_state::MANUAL)
+	{
+		res.response = 0;
+		return false;
+	}
+	if(sendGoal(req.goal.x, req.goal.y, req.goal.theta))
+	{
+		res.response = 1;
+	}
+	else
+	{
+		res.response = 0;
+	}
+}
+
 void UnicornState::processKey(int c)
 {
   float x,y,yaw;
@@ -147,9 +188,15 @@ void UnicornState::processKey(int c)
   	}
   	else
   	{
-    	std::cout << "Target x: "; std::cin >> x;
-    	std::cout << "Target y: "; std::cin >> y;
-    	std::cout << "Target yaw: "; std::cin >> yaw;
+  		std::cout << "Target x: ";
+  		if(!getInput(x))
+    		return;
+    	std::cout << "Target y: ";
+    	if(!getInput(y))
+    		return;
+    	std::cout << "Target yaw: ";
+    	if(!getInput(yaw))
+    		return;
     	sendGoal(x,y,yaw);
     	state_ = current_state::AUTONOMOUS;
     	printUsage();
@@ -172,6 +219,15 @@ void UnicornState::processKey(int c)
   }
   else if (c == '4')
   {
+	std::cout << "Refuse bin x: ";
+ 	if(!getInput(refuse_bin_pose_.x))
+   		return;
+   	std::cout << "Refuse bin y: ";
+   	if(!getInput(refuse_bin_pose_.y))
+   		return;
+   	std::cout << "Refuse bin yaw: ";
+   	if(!getInput(refuse_bin_pose_.yaw))
+   		return;
   	state_ = current_state::LOADING;
   	loading_state_ = current_state::ALIGNING;
   	man_cmd_vel_.angular.z = 0;
@@ -180,9 +236,15 @@ void UnicornState::processKey(int c)
   }
   else if (c == '5')
   {
-   	std::cout << "Target x: "; std::cin >> x;
-   	std::cout << "Target y: "; std::cin >> y;
-   	std::cout << "Target yaw: "; std::cin >> yaw;
+   	std::cout << "Target x: ";
+  	if(!getInput(x))
+   		return;
+   	std::cout << "Target y: ";
+   	if(!getInput(y))
+   		return;
+   	std::cout << "Target yaw: ";
+   	if(!getInput(yaw))
+   		return;
    	sendMoveCmd(x,y,yaw);
    	state_ = current_state::AUTONOMOUS;
    	printUsage();
@@ -256,7 +318,9 @@ void UnicornState::active()
 				if (!move_base_active_)
 		    	{
 		    		ROS_INFO("[unicorn_statemachine] Aligning with garbage disposal...");
-		    		sendGoal(0,0,-1.42);
+		    		sendGoal(refuse_bin_pose_.x + 1.5*cos(refuse_bin_pose_.yaw)
+		    			,refuse_bin_pose_.y + 1.5*sin(refuse_bin_pose_.yaw)
+		    			,refuse_bin_pose_.yaw);
 		    		move_base_active_ = 1;
 		    		return;
 		    	}
@@ -338,28 +402,29 @@ void UnicornState::active()
 	}
 }
 
-void UnicornState::sendGoal(float x, float y, float yaw)
+int UnicornState::sendGoal(const float& x, float y, float yaw)
 {
 	try {
 	  float check_input=boost::lexical_cast<float>(x);
-	} catch(boost::bad_lexical_cast &) {
+	} catch(boost::bad_lexical_cast &e) {
+	  ROS_INFO("%s", e.what());
 	  ROS_ERROR("[unicorn_statemachine] x is undefined");
 	  state_ = current_state::IDLE;
-	  return;
+	  return -1;
 	}
 	try {
 	  float check_input=boost::lexical_cast<float>(y);
 	} catch(boost::bad_lexical_cast &) {
 	  ROS_ERROR("[unicorn_statemachine] y is undefined");
 	  state_ = current_state::IDLE;
-	  return;
+	  return -1;
 	}
 	try {
 	  float check_input=boost::lexical_cast<float>(yaw);
 	} catch(boost::bad_lexical_cast &) {
 	  ROS_ERROR("[unicorn_statemachine] yaw is undefined");
 	  state_ = current_state::IDLE;
-	  return;
+	  return -1;
 	}
     while(!move_base_clt_.waitForServer(ros::Duration(5.0)))
     {
@@ -376,7 +441,7 @@ void UnicornState::sendGoal(float x, float y, float yaw)
   	move_base_clt_.sendGoal(goal);
 
   	// move_base_clt_.waitForResult();
-
+  	return 1;
 }
 
 void UnicornState::sendMoveCmd(float x, float y, float yaw)
