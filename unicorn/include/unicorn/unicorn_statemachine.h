@@ -80,6 +80,7 @@ public:
 	/** @brief Initializes publishers/subscribers. */
 	UnicornState();
 	/** @brief Start global localization.
+	*
 	* Calls rosservice /global_localization
 	* from rosnode /amcl.
 	*/
@@ -87,6 +88,7 @@ public:
 	/** @brief Non-blocking get char.*/
 	int getCharacter();
 	/** @brief Calls functions from keyboard input.
+	*
 	* @param c input key.
 	*/
 	void processKey(int c);
@@ -95,7 +97,8 @@ public:
 	void printUsage();
 	/** @brief Outer loop.*/
 	void active();
-	/** @brief Maps current state to a string. 
+	/** @brief Maps current state to a string.
+	*
 	* @param state current machine state.
 	* @return string state as string.
 	*/
@@ -103,6 +106,7 @@ public:
 	void odomCallback(const nav_msgs::Odometry& msg);
 	void rangeCallback(const sensor_msgs::Range& msg);
 	/** @brief Sends a goal on the map to move_base.
+	*
 	* @param x,y target point on map.
 	* @param yaw target heading.
 	*/

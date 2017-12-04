@@ -4,7 +4,7 @@
 
 - Jetson TX1
 - LMS111
-- Zed Camera
+- Zed Camera || Orbbec
 - Usb 3.0 hub
 - Husqvarna Automower
 
@@ -33,21 +33,40 @@ Remember to build the code if you update it:
 
 > cd ~/catkin_ws && catkin_make
 
+#### Launch File
+
+The launch files main_*.launch all have the same arguments available. 
+
+- use_gmapping: true if a map should be generated from laser scan.
+- map_file: path/to/map.yaml to use if `use_gmapping` is false.
+
+Parameters for individual nodes may be edited as well --- the most important being `serial_port` for both the range\_sensor\_driver and the `am_driver` nodes. 
+
+(*) end with "zed" or "orbbec" depending on which camera is in use.
+
 ### Run
 
-- Make two terminals and ssh from both to the jetson tx1. 
-- In the first one run:
+Make two terminals and ssh from both to the jetson tx1 (you may run the teleop from host as well with ROS_IP and ROS_MASTER_URI configured).
+ 
+In the first one run:
 
-> roslaunch unicorn main_target.launch
+> cd
+> ./lidar_connect.sh
+> roslaunch unicorn main_*.launch
 
 - In the second:
 
-> rosrun am_driver hrp_teleop.py
+> rosrun unicorn teleop.launch
 
 - Make another terminal and configure `ROS_IP` and `ROS_MASTER_URI` to enable reading topics from the jetson tx1.
 
 > export ROS_IP=$YOUR_IP
 > export ROS_MASTER_URI=http://10.42.0.1:11311
+
+Then start the interface to the unicorn state machine and (optionally) rviz:
+
+> rosrun unicorn unicorn_statemachine
+> rosrun rviz rviz
 
 ### Start automower
 
@@ -68,30 +87,32 @@ Shown by hrp_teleop node and indicates that the automower is very sad. Open up t
 Shown by hrp_teleop node and indicates that the automower is not started. If you are sure that it has started correctly try to restart the teleop node instead.
 
 `SERIAL PORT DOESN'T EXIST`
-Shown by am_driver_safe_node started by main_target.launch and indicates that the jetson tx1 cannot find the automower. Make sure that the usb cable is plugged in (hehe) and that ACM is listed under devices.
+Shown by am_driver_safe_node started by main_*.launch and indicates that the jetson tx1 cannot find the automower. Make sure that the usb cable is plugged in (hehe) and that ACM is listed under devices.
 
 >   ls /dev/ttyACM*
 
-Compare the number behind ACM with the number in `main_target.launch` and edit if needed.
+Compare the number behind ACM with the number in `main_*.launch` and edit if needed.
 
-`ROSTOPIC ECHO /SCAN DOES NOT WORK`
+LIDAR NOT PUBLISHING /SCAN
 Make sure that the variables `ROS_IP` and `ROS_MASTER_URI` are set correctly on your host computer.
 
->  echo $ROS_IP && echo $ROS_MASTER_URI
+> echo $ROS_IP && echo $ROS_MASTER_URI
 
 Otherwise make sure that the ip address of the LMS111 is set correctly.
 
->   nmap -sP 192.168.0.2/24
+> nmap -sP 192.168.0.2/24
 
 May take a few seconds. If it doesn't output anything try to investigate if our link to eth0 is up using:
 
->   ifconfig
+> ifconfig
 
 And if it is down set it up using:
 
->   sudo ip link set eth0 up
+> sudo ip link set eth0 up
 
-Then repeat the nmap and if you find the ip address (typically 192.168.0.100) then compare it to the one set in `main_target.launch` under "Start the LMS111...".
+Then repeat the nmap and if you find the ip address (typically 192.168.0.100) then compare it to the one set in `main_*.launch` under "Start the LMS111...".
+
+If it's still not working it may be a hardware issue so go check if the eth cable led is blinking and if the lidar is not working. You can check this by looking at the colored lights at the front of the lidar where green indicates that it's ok, red the opposite, and yellow shows that you need to wipe the lidar. Checking documentation for this is recommended.
 
 ### Run simulation
 

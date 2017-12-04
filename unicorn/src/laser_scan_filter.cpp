@@ -15,8 +15,13 @@ int main(int argc, char** argv){
 
 LaserFilter::LaserFilter()
 {
+  std::string scan_topic;
+  if (!n_.getParam("scan_topic", scan_topic))
+  {
+    scan_topic = "/scan_filtered";
+  }
   scan_sub_ = n_.subscribe("/scan", 0, &LaserFilter::scanCallback, this);
-  scan_pub_ = n_.advertise<sensor_msgs::LaserScan>("/scan_filtered", 0);
+  scan_pub_ = n_.advertise<sensor_msgs::LaserScan>(scan_topic.c_str(), 0);
   if (n_.getParam("/laser_filter/lower_angle", lower_angle_))
   {
     ROS_INFO("laser_filter: Lower angle threshold: %f", lower_angle_);

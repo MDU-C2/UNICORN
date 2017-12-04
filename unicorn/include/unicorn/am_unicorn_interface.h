@@ -11,6 +11,11 @@
 #include <iostream>
 #include <termios.h>
 
+/** @brief Main class for automower to unicorn interface node
+*		
+*	Flips the velocity command from topic "/unicorn/cmd_vel" and publishes on
+*	"cmd_vel".
+*/
 class AmUnicornInterface
 {
 public:
