@@ -2,8 +2,8 @@
 
 <node pkg="rviz" 
 	name="rviz" 
-	type="rviz">
-	 <args ="$(find unicorn)/config/default.rviz"/>
+	type="rviz"
+	args ="$(find unicorn)/config/default.rviz"/>
 
 
 </launch>
