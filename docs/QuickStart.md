@@ -38,6 +38,10 @@ Remember to build the code if you update it:
 The launch files main_*.launch all have the same arguments available. 
 
 - use_gmapping: true if a map should be generated from laser scan.
+    + The map created using gmapping may be saved using the map_server:
+
+> rosrun map_server map_saver -f map_name
+
 - map_file: path/to/map.yaml to use if `use_gmapping` is false.
 
 Parameters for individual nodes may be edited as well --- the most important being `serial_port` for both the range\_sensor\_driver and the `am_driver` nodes. 

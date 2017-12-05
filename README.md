@@ -83,3 +83,13 @@ git pull
 
 git merge <local-branch>
 ```
+
+### Push your changes remotely with a commit message
+
+```
+git add . 
+
+git commit -m "Commit message goes here"
+
+git push origin <branch> 
+```
