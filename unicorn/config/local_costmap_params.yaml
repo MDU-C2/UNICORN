@@ -4,8 +4,8 @@ local_costmap:
   #We'll publish the voxel grid used by this costmap
   plugins:
   - {name: static_layer,     type: "costmap_2d::StaticLayer"}
-  - {name: obstacle_layer,    type: "costmap_2d::ObstacleLayer"}
   - {name: sonar_layer,       type: "range_sensor_layer::RangeSensorLayer"}
+  - {name: obstacle_layer,    type: "costmap_2d::ObstacleLayer"}
   #- {name: voxel_layer,       type: "costmap_2d::VoxelLayer"}
   - {name: inflation_layer,   type: "costmap_2d::InflationLayer"}
   # - {name: static_layer,     type: "costmap_2d::StaticLayer"}

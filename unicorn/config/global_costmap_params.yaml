@@ -3,8 +3,8 @@
 global_costmap:
   #Set the global and robot frames for the costmap
   plugins:
-    - {name: obstacle_layer,    type: "costmap_2d::ObstacleLayer"}
     - {name: sonar_layer,       type: "range_sensor_layer::RangeSensorLayer"}
+    - {name: obstacle_layer,    type: "costmap_2d::ObstacleLayer"}
   # - {name: static_layer,     type: "costmap_2d::StaticLayer"}
     - {name: static_layer,     type: "costmap_2d::StaticLayer"}
     - {name: inflation_layer,   type: "costmap_2d::InflationLayer"}
