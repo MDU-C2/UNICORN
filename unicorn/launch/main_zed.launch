@@ -5,7 +5,7 @@
 <arg name="debug" default="false"/>
 <arg name="use_gmapping" default="false"/>
 <arg name="scan_topic" value="scan_filtered"/>
-<arg name="map_file" value="$(find unicorn_slam)/maps/hospital_map_3.yaml"/>
+<arg name="map_file" value="$(find unicorn_slam)/maps/work_room.yaml"/>
 <arg name="lidar_ip" default="192.168.0.100" />
 
 <!-- Joint pos gui -->
@@ -75,19 +75,19 @@
 </node>
 
 <!-- Starts interface between automower and unicorn to enable backward driving -->
-<!-- <node name="range_sensor_driver" 
+<node name="range_sensor_driver" 
 	pkg="unicorn" 
 	type="range_sensor_driver" 
 	output="screen">
 <rosparam>
  serial_port: "/dev/ttyACM0"
 </rosparam>
-</node> -->
+</node>
 
 
 <!-- Start the am_driver -->
 <node name="am_driver_safe" pkg="am_driver_safe" type="am_driver_safe_node" output="screen">
-	<param name="serialPort" value="/dev/ttyACM0" type="str" />
+	<param name="serialPort" value="/dev/ttyACM1" type="str" />
 	<param name="printCharge" value="false"/>
 	<param name="publishTf" value="1"/>
 	<param name="pitchAndRoll" value="false"/>

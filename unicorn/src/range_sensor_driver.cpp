@@ -21,9 +21,9 @@ RangeSensor::RangeSensor(std::string sensor_topic, std::string sensor_frame)
 	range_pub_ = n_.advertise<sensor_msgs::Range>(TOPIC.c_str(), 0, this);
 	range_msg_.header.frame_id = sensor_frame.c_str();
 	range_msg_.radiation_type = sensor_msgs::Range::ULTRASOUND;
-	range_msg_.min_range = 20.0;
-	range_msg_.max_range = 200.0;
-	range_msg_.field_of_view = 0;
+	range_msg_.min_range = 0.2;
+	range_msg_.max_range = 2.0;
+	range_msg_.field_of_view = 0.5;
 }
 
 void RangeSensor::setRange(float range)
@@ -47,7 +47,7 @@ RangeDriver::RangeDriver()
 	}
 	else
 	{
-		SERIAL_PORT_ = "/dev/ttyUSB0";
+		SERIAL_PORT_ = "/dev/ttyACM0";
 	}
 	file_.open(SERIAL_PORT_.c_str());
 	if ( (file_.rdstate() & std::ifstream::failbit ) != 0 )
@@ -61,9 +61,9 @@ RangeDriver::RangeDriver()
     {
     	for (int i = 0; i < range_name_list.size(); ++i)
     	{
-    		ROS_INFO("[range_sensor_driver] frame_id: %s", std::string(std::string("base_")+range_name_list[i].substr(1,range_name_list.size()-2)).c_str());
+    		ROS_INFO("[range_sensor_driver] frame_id: %s", std::string(std::string("base_")+range_name_list[i].substr(1,range_name_list[i].size())).c_str());
     		range_sensor_list_.push_back(new RangeSensor(range_name_list[i],
-    			std::string("base_")+range_name_list[i].substr(1,range_name_list.size()-2)));
+    			std::string("base_")+range_name_list[i].substr(1,range_name_list[i].size())));
     	}
     }
     else
@@ -74,6 +74,7 @@ RangeDriver::RangeDriver()
     		int i = 0, index = 0;
 	    	while(index != range_data_.npos)
 	    	{
+	    		ROS_INFO("fisk");
 	    		index = range_data_.find_first_of(':', index);
 				index++;
 				if (index != 0)
@@ -84,6 +85,7 @@ RangeDriver::RangeDriver()
 	    		}
 	    		else
 	    		{
+	    			range_sensor_list_.pop_back();
 	    			return;
 	    		}
 	    	}
@@ -100,28 +102,38 @@ RangeDriver::~RangeDriver()
 {
 	file_.close();
 }
+/* :30:200:35:45:*/
 void RangeDriver::readLine()
 {
+	// ROS_INFO("Range sensors: %d", (int)range_sensor_list_.size());
 	if (file_ >> range_data_)
 	{
-		int i = 0, index = 0;
-		while(index != range_data_.npos)
+		// std::cout << "String: " << range_data_ << std::endl;
+		int i = 0, end_index = 0, start_index = 0;
+		start_index = range_data_.find_first_of(':', start_index);
+		start_index++;
+		while(end_index != range_data_.npos)
 		{
-			index = range_data_.find_first_of(':', index);
-			index++;
-			if (index != 0)
+			end_index = start_index;
+			end_index = range_data_.find_first_of(':', end_index);
+			// end_index--;
+			// ROS_INFO("start: %d end: %d", start_index, end_index);
+			if (end_index >= start_index)
 			{
 				try
 				{
-					float test = boost::lexical_cast<float>(range_data_.substr(index,3));
+					// std::cout << "substr: " << range_data_.substr(start_index,end_index-start_index) << std::endl;
+					float test = boost::lexical_cast<float>(range_data_.substr(start_index,end_index-start_index));
 				}
 				catch(boost::bad_lexical_cast &)
 				{
 					ROS_WARN("[range_sensor_driver] Bad serial reading!");
 					return;
 				}
-				range_sensor_list_[i]->setRange(boost::lexical_cast<float>(range_data_.substr(index,3)));
+				range_sensor_list_[i]->setRange(boost::lexical_cast<float>(range_data_.substr(start_index,end_index-start_index)) / 100);
 				i++;
+				start_index = range_data_.find_first_of(':', start_index);
+				start_index++;
 			}
 			else
 			{

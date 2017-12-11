@@ -39,7 +39,9 @@ obstacle_layer:
   point_cloud_sensor: {sensor_frame: zed_center, data_type: PointCloud2, topic: /cloud_filtered, expected_update_rate: 1.0,
      marking: true, clearing: true, max_obstacle_height: 0.6, min_obstacle_height: 0.1, observation_persistence: 0.0, mark_threshold: 9}
  
-# sonar_layer:
-#   topics: ['/ultrasonic_bm']
-#   no_readings_timeout: 1.0
-#   clear_on_max_reading: true
+sonar_layer:
+  topics: ['/ultrasonic_br', '/ultrasonic_bmr', '/ultrasonic_bml', '/ultrasonic_bl', '/ultrasonic_fl', '/ultrasonic_fml', '/ultrasonic_fmr', '/ultrasonic_fr']
+  no_readings_timeout: 1.0
+  clear_on_max_reading: true
+  mark_threshold: 0.8
+  clear_threshold: 0.2

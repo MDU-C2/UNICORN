@@ -249,68 +249,55 @@
   <swivel_wheel fb="front" lr="left" parent="chassis_link" translateY="-0.16" translateX="0.355" translateZ="0.03" wheel_radius="0.05" wheel_height="0.05" flip="0"/>
   <swivel_wheel fb="front" lr="right" parent="chassis_link" translateY="0.16" translateX="0.355" translateZ="0.03" wheel_radius="0.05" wheel_height="0.05" flip="0"/>
 
-  <!-- LOOP SENSORs -->
-  <!-- <sensorpos name="loop_front_center" parent="base_link" translateX="0.38" translateY="0.0" translateZ="-0.04"/>
-  <sensorpos name="loop_front_right" parent="base_link" translateX="0.38" translateY="-0.07" translateZ="-0.04"/>
-  <sensorpos name="loop_rear_left" parent="base_link" translateX="-0.07" translateY="0.14" translateZ="-0.04"/>
-  <sensorpos name="loop_rear_right" parent="base_link" translateX="-0.07" translateY="-0.14" translateZ="-0.04"/> -->
-
-  <!-- CONFINEMENT SENSORs -->
-  <!-- <sensorpos name="col_front_chassis" parent="base_link" translateX="0.55" translateY="0.0" translateZ="0.00"/>
-  <sensorpos name="col_front_left" parent="base_link" translateX="0.43" translateY="0.24" translateZ="0.00"/>
-  <sensorpos name="col_front_right" parent="base_link" translateX="0.43" translateY="-0.24" translateZ="0.00"/>
-  <sensorpos name="col_rear_left" parent="base_link" translateX="-0.10" translateY="0.24" translateZ="0.0"/>
-  <sensorpos name="col_rear_right" parent="base_link" translateX="-0.10" translateY="-0.24" translateZ="0.0"/> -->
-
-  <!-- CUTTING DISC -->
-  <!-- <link name="cutting_disc_center">
-    <visual>
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <geometry>
-            <cylinder length="0.01" radius="0.11" />
-        </geometry>
-        <material name="Purple" />
-    </visual>
-  </link>
-
-  <gazebo reference="cutting_disc_center">
-    <turnGravityOff>false</turnGravityOff>
-  </gazebo>
-
-  <joint name="cutting_disc_center_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="cutting_disc_center" />
-  <origin xyz="0.25 0.0 -0.07" rpy="0 0 0" />
-  </joint> -->
-
-
-  <!-- Antenna -->
-  <!-- <link name="antenna_center">
-    <visual>
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <geometry>
-            <cylinder length="0.01" radius="0.05" />
-        </geometry>
-        <material name="Purple" />
-    </visual>
-  </link>
-
-  <gazebo reference="antenna_center">
-    <turnGravityOff>false</turnGravityOff>
-  </gazebo>
-
-  <joint name="antenna_center_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="antenna_center" />
-  <origin xyz="0.27 0.0 0.0" rpy="0 0 0" />
-  </joint> -->
   
-  <!-- <ultrasonic_sensor frame="base_ultrasonic_bm" topic="bm" robot_namespace="$(arg robot_namespace)"/>
-  <joint name="ultrasonic_mount_joint_bm" type="fixed">
-    <origin xyz="0.0 0.0 0.0" rpy="0 0 ${M_PI}"/>
+  <ultrasonic_sensor frame="base_ultrasonic_br" topic="br" robot_namespace="$(arg robot_namespace)"/>
+  <joint name="ultrasonic_mount_joint_br" type="fixed">
+    <origin xyz="0.4 0.25 0.0" rpy="0 0 ${M_PI/2}"/>
     <parent link="chassis_link"/>
-    <child link="base_ultrasonic_bm" />
-  </joint> -->
+    <child link="base_ultrasonic_br" />
+  </joint>
+  <ultrasonic_sensor frame="base_ultrasonic_bl" topic="bl" robot_namespace="$(arg robot_namespace)"/>
+  <joint name="ultrasonic_mount_joint_bl" type="fixed">
+    <origin xyz="0.4 -0.25 0.0" rpy="0 0 ${-M_PI/2}"/>
+    <parent link="chassis_link"/>
+    <child link="base_ultrasonic_bl" />
+  </joint>
+  <ultrasonic_sensor frame="base_ultrasonic_fl" topic="fl" robot_namespace="$(arg robot_namespace)"/>
+  <joint name="ultrasonic_mount_joint_fl" type="fixed">
+    <origin xyz="-0.2 -0.25 0.0" rpy="0 0 ${M_PI+M_PI/4}"/>
+    <parent link="chassis_link"/>
+    <child link="base_ultrasonic_fl" />
+  </joint>
+  <ultrasonic_sensor frame="base_ultrasonic_fr" topic="fr" robot_namespace="$(arg robot_namespace)"/>
+  <joint name="ultrasonic_mount_joint_fr" type="fixed">
+    <origin xyz="-0.2 0.25 0.0" rpy="0 0 ${M_PI-M_PI/4}"/>
+    <parent link="chassis_link"/>
+    <child link="base_ultrasonic_fr" />
+  </joint>
+  <ultrasonic_sensor frame="base_ultrasonic_bmr" topic="bmr" robot_namespace="$(arg robot_namespace)"/>
+  <joint name="ultrasonic_mount_joint_bmr" type="fixed">
+    <origin xyz="0.5 0.1 0.0" rpy="0 0 0"/>
+    <parent link="chassis_link"/>
+    <child link="base_ultrasonic_bmr" />
+  </joint>
+  <ultrasonic_sensor frame="base_ultrasonic_bml" topic="bml" robot_namespace="$(arg robot_namespace)"/>
+  <joint name="ultrasonic_mount_joint_bml" type="fixed">
+    <origin xyz="0.5 -0.1 0.0" rpy="0 0 0"/>
+    <parent link="chassis_link"/>
+    <child link="base_ultrasonic_bml" />
+  </joint>
+  <ultrasonic_sensor frame="base_ultrasonic_fmr" topic="fmr" robot_namespace="$(arg robot_namespace)"/>
+  <joint name="ultrasonic_mount_joint_fmr" type="fixed">
+    <origin xyz="-0.2 0.1 0.0" rpy="0 0 ${M_PI}"/>
+    <parent link="chassis_link"/>
+    <child link="base_ultrasonic_fmr" />
+  </joint>
+  <ultrasonic_sensor frame="base_ultrasonic_fml" topic="fml" robot_namespace="$(arg robot_namespace)"/>
+  <joint name="ultrasonic_mount_joint_fml" type="fixed">
+    <origin xyz="-0.2 -0.1 0.0" rpy="0 0 ${M_PI}"/>
+    <parent link="chassis_link"/>
+    <child link="base_ultrasonic_fml" />
+  </joint>
 
     <sick_lms1xx frame="base_laser" topic="scan" robot_namespace="$(arg robot_namespace)"/>
 
