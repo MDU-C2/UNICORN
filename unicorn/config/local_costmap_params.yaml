@@ -6,11 +6,9 @@ local_costmap:
   - {name: static_layer,     type: "costmap_2d::StaticLayer"}
   - {name: obstacle_layer,    type: "costmap_2d::ObstacleLayer"}
   - {name: sonar_layer,       type: "range_sensor_layer::RangeSensorLayer"}
-  #- {name: voxel_layer,       type: "costmap_2d::VoxelLayer"}
   - {name: inflation_layer,   type: "costmap_2d::InflationLayer"}
-  # - {name: static_layer,     type: "costmap_2d::StaticLayer"}
   
-  publish_voxel_map: false
+  # publish_voxel_map: false
 
   #Set the global and robot frames for the costmap
   global_frame: odom

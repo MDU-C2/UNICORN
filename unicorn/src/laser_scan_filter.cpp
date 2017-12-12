@@ -40,6 +40,8 @@ LaserFilter::LaserFilter()
     ROS_WARN("laser_filter: Upper angle threshold not set");
     upper_angle_ = 1.57;
   }
+  lower_angle_ += M_PI / 4;
+  upper_angle_ += M_PI / 4;
 }
 
 LaserFilter::~LaserFilter()

@@ -23,7 +23,7 @@ RangeSensor::RangeSensor(std::string sensor_topic, std::string sensor_frame)
 	range_msg_.radiation_type = sensor_msgs::Range::ULTRASOUND;
 	range_msg_.min_range = 0.2;
 	range_msg_.max_range = 2.0;
-	range_msg_.field_of_view = 0.5;
+	range_msg_.field_of_view = 0.25;
 }
 
 void RangeSensor::setRange(float range)

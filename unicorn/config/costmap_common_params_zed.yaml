@@ -42,6 +42,6 @@ obstacle_layer:
 sonar_layer:
   topics: ['/ultrasonic_br', '/ultrasonic_bmr', '/ultrasonic_bml', '/ultrasonic_bl', '/ultrasonic_fl', '/ultrasonic_fml', '/ultrasonic_fmr', '/ultrasonic_fr']
   no_readings_timeout: 1.0
-  clear_on_max_reading: true
-  mark_threshold: 0.8
-  clear_threshold: 0.2
+  clear_on_max_reading: false
+  # mark_threshold: 0.6
+  # clear_threshold: 0.2

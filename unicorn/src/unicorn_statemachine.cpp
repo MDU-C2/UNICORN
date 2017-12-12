@@ -78,9 +78,8 @@ UnicornState::UnicornState()
   cmd_vel_pub_ = n_.advertise<geometry_msgs::Twist>("/unicorn/cmd_vel", 0);
   odom_sub_ = n_.subscribe(odom_topic.c_str(), 0, &UnicornState::odomCallback, this);
   acc_cmd_srv_ = n_.advertiseService("cmd_charlie", &UnicornState::accGoalServer, this);
-  range_sensor_list_["ultrasonic_bm"] = new RangeSensor("ultrasonic_bm");
-  range_sensor_list_["ultrasonic_br"] = new RangeSensor("ultrasonic_br");
-  range_sensor_list_["ultrasonic_bl"] = new RangeSensor("ultrasonic_bl");
+  range_sensor_list_["ultrasonic_bm"] = new RangeSensor("ultrasonic_bmr");
+  range_sensor_list_["ultrasonic_br"] = new RangeSensor("ultrasonic_bml");
 
   state_ = current_state::MANUAL;
   loading_state_ = current_state::ALIGNING;

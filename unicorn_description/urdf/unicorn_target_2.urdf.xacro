@@ -252,37 +252,37 @@
   
   <ultrasonic_sensor frame="base_ultrasonic_br" topic="br" robot_namespace="$(arg robot_namespace)"/>
   <joint name="ultrasonic_mount_joint_br" type="fixed">
-    <origin xyz="0.4 0.25 0.0" rpy="0 0 ${M_PI/2}"/>
+    <origin xyz="0.45 0.2 0.0" rpy="0 0 ${3*M_PI/4}"/>
     <parent link="chassis_link"/>
     <child link="base_ultrasonic_br" />
   </joint>
   <ultrasonic_sensor frame="base_ultrasonic_bl" topic="bl" robot_namespace="$(arg robot_namespace)"/>
   <joint name="ultrasonic_mount_joint_bl" type="fixed">
-    <origin xyz="0.4 -0.25 0.0" rpy="0 0 ${-M_PI/2}"/>
+    <origin xyz="0.45 -0.2 0.0" rpy="0 0 ${-3*M_PI/4}"/>
     <parent link="chassis_link"/>
     <child link="base_ultrasonic_bl" />
   </joint>
   <ultrasonic_sensor frame="base_ultrasonic_fl" topic="fl" robot_namespace="$(arg robot_namespace)"/>
   <joint name="ultrasonic_mount_joint_fl" type="fixed">
-    <origin xyz="-0.2 -0.25 0.0" rpy="0 0 ${M_PI+M_PI/4}"/>
+    <origin xyz="-0.2 -0.25 0.0" rpy="0 0 ${5*M_PI/4}"/>
     <parent link="chassis_link"/>
     <child link="base_ultrasonic_fl" />
   </joint>
   <ultrasonic_sensor frame="base_ultrasonic_fr" topic="fr" robot_namespace="$(arg robot_namespace)"/>
   <joint name="ultrasonic_mount_joint_fr" type="fixed">
-    <origin xyz="-0.2 0.25 0.0" rpy="0 0 ${M_PI-M_PI/4}"/>
+    <origin xyz="-0.2 0.25 0.0" rpy="0 0 ${3*M_PI/4}"/>
     <parent link="chassis_link"/>
     <child link="base_ultrasonic_fr" />
   </joint>
   <ultrasonic_sensor frame="base_ultrasonic_bmr" topic="bmr" robot_namespace="$(arg robot_namespace)"/>
   <joint name="ultrasonic_mount_joint_bmr" type="fixed">
-    <origin xyz="0.5 0.1 0.0" rpy="0 0 0"/>
+    <origin xyz="0.47 0.15 0.0" rpy="0 0 ${-M_PI/6}"/>
     <parent link="chassis_link"/>
     <child link="base_ultrasonic_bmr" />
   </joint>
   <ultrasonic_sensor frame="base_ultrasonic_bml" topic="bml" robot_namespace="$(arg robot_namespace)"/>
   <joint name="ultrasonic_mount_joint_bml" type="fixed">
-    <origin xyz="0.5 -0.1 0.0" rpy="0 0 0"/>
+    <origin xyz="0.47 -0.15 0.0" rpy="0 0 ${M_PI/6}"/>
     <parent link="chassis_link"/>
     <child link="base_ultrasonic_bml" />
   </joint>
