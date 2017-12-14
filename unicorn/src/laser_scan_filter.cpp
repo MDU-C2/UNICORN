@@ -1,3 +1,5 @@
+// Filter out unwanted angles from the LIDAR readings
+
 #include <unicorn/laser_scan_filter.h>
 
 int main(int argc, char** argv){
@@ -113,5 +115,4 @@ void LaserFilter::scanCallback(const sensor_msgs::LaserScan& input_scan)
     scan_.intensities.resize(count);
   }
 
-  // ROS_DEBUG("Filtered out %d points from the laser scan.", (int)input_scan.ranges.size() - (int)count);
 }

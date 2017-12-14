@@ -1,7 +1,9 @@
+<!-- Launches Gazebo with predefined settings with the Unicorn platform -->
+
 <?xml version="1.0" encoding="utf-8"?>
 <launch>
 
-	<!-- <remap from="cmd_vel" to="/unicorn/cmd_vel"/> -->
+
 	<!-- roslaunch arguments -->
 	<arg name="use_teb_planner" default="true"/>
 	<arg name="show_rviz" default="true"/>
@@ -13,8 +15,10 @@
 	<arg name="map_file" value="$(find unicorn_slam)/maps/gmap_map.yaml"/>
 	<rosparam param="global_local">false</rosparam>
 	<rosparam param="frame_id">chassis_link</rosparam>
+
 	<!-- Joint pos gui -->
 	<param name="use_gui" value="false"/> 
+
 	<!-- Lidar angle limitations (rad) -->
 	<rosparam param="lower_angle">-1.57</rosparam>
 	<rosparam param="upper_angle">1.57</rosparam>
@@ -66,6 +70,7 @@
 		<arg name="headless" value="false"/>
 		<arg name="debug" value="false"/>
 	</include>
+
 	<!-- urdf xml robot description loaded on the Parameter Server-->
 	<param name="robot_description" command="$(find xacro)/xacro.py '$(find unicorn_description)/urdf/unicorn_2_back.urdf.xacro'" />
 
@@ -82,15 +87,19 @@
 
 	<!-- source that publishes the joint positions as a sensor_msgs/JointState -->
 	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+	
 	<!-- publish all the frames to TF -->
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher">
 		<param name="publish_frequency" value="50"/>
 	</node>
+	
 	<!-- Starts laser filter to enable limitation of laserscan angle -->
 	<node name="laser_filter" pkg="unicorn" type="laser_scan_filter" output="screen"/>
+	
 	<!-- Starts interface between automower and unicorn to enable backward driving -->
 	<node name="am_unicorn_interface" pkg="unicorn" type="am_unicorn_interface" output="screen"/>
 
+	<!-- static transform for the Orbbec camera -->
 	<node name="static_tf_orbbec"
 		pkg="tf"
 		type="static_transform_publisher"

@@ -1,3 +1,5 @@
+// Reads Ultra sonic sensor data from the USB port.
+
 #include <unicorn/range_sensor_driver.h>
 
 int main(int argc, char **argv)
@@ -102,13 +104,11 @@ RangeDriver::~RangeDriver()
 {
 	file_.close();
 }
-/* :30:200:35:45:*/
+
 void RangeDriver::readLine()
 {
-	// ROS_INFO("Range sensors: %d", (int)range_sensor_list_.size());
 	if (file_ >> range_data_)
 	{
-		// std::cout << "String: " << range_data_ << std::endl;
 		int i = 0, end_index = 0, start_index = 0;
 		start_index = range_data_.find_first_of(':', start_index);
 		start_index++;
@@ -116,13 +116,10 @@ void RangeDriver::readLine()
 		{
 			end_index = start_index;
 			end_index = range_data_.find_first_of(':', end_index);
-			// end_index--;
-			// ROS_INFO("start: %d end: %d", start_index, end_index);
 			if (end_index >= start_index)
 			{
 				try
 				{
-					// std::cout << "substr: " << range_data_.substr(start_index,end_index-start_index) << std::endl;
 					float test = boost::lexical_cast<float>(range_data_.substr(start_index,end_index-start_index));
 				}
 				catch(boost::bad_lexical_cast &)

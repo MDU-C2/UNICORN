@@ -1,3 +1,5 @@
+// sends commands to the HRP in terms of speed, angular and linear
+
 #include <unicorn/am_unicorn_interface.h>
 
 int main(int argc, char** argv){

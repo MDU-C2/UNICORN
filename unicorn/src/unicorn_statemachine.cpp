@@ -1,3 +1,5 @@
+// Statemachine for the unicorn platform
+
 #include <unicorn/unicorn_statemachine.h>
 
 int main(int argc, char **argv)
@@ -8,7 +10,6 @@ int main(int argc, char **argv)
 	ros::Rate r(50);
 	while(ros::ok())
 	{
-	  // return 0;
       statemachine.active();
 	  ros::spinOnce();
 	  r.sleep();
@@ -46,11 +47,6 @@ UnicornState::UnicornState()
 {
   bool run_global_loc;
   std::string odom_topic;
-  n_.getParam("global_local", run_global_loc);
-  if (run_global_loc)
-  {
-    globalLocalization();
-  }
 
   if(!n_.getParam("max_angular_vel", MAX_ANGULAR_VEL))
   {
@@ -81,6 +77,12 @@ UnicornState::UnicornState()
   range_sensor_list_["ultrasonic_bm"] = new RangeSensor("ultrasonic_bmr");
   range_sensor_list_["ultrasonic_br"] = new RangeSensor("ultrasonic_bml");
 
+  n_.getParam("global_local", run_global_loc);
+  if (run_global_loc)
+  {
+    globalLocalization();
+  }
+
   state_ = current_state::MANUAL;
   loading_state_ = current_state::ALIGNING;
   move_base_active_ = 0;
@@ -88,7 +90,7 @@ UnicornState::UnicornState()
 void UnicornState::globalLocalization()
 {
   std_srvs::Empty srv;
-  ros::service::waitForService("/global_localization", -1);
+  ros::service::waitForService("/global_localization", 1);
 
   if (amcl_global_clt_.call(srv))
   {
@@ -339,7 +341,6 @@ void UnicornState::active()
 				if((range_sensor_list_["ultrasonic_bm"]->getRange() > 30.0)
 					&&(range_sensor_list_["ultrasonic_bm"]->getRange() < 200.0))
 				{
-					// ROS_INFO("current range: %f", range_sensor_list_["ultrasonic_bm"]->getRange());
 					man_cmd_vel_.linear.x = -0.17;
 				}
 				else
@@ -363,10 +364,6 @@ void UnicornState::active()
 			case current_state::EXITING:
 				if (c == 'k')
 				{
-					/*sendMoveCmd(1.5,0,0);
-		    		move_base_active_ = 1;
-		    		ROS_INFO("[unicorn_statemachine] Exiting garbage disposal");		    		
-		    		return;*/
 		    		ROS_INFO("[unicorn_statemachine] Exiting garbage disposal");
 		    		man_cmd_vel_.linear.x = 0.15;
 				}
@@ -378,12 +375,6 @@ void UnicornState::active()
 					state_ = current_state::IDLE;
 					printUsage();
 				}
-				/*if (move_base_clt_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED && move_base_active_)
-				{
-					move_base_active_ = 0;
-					state_ = current_state::IDLE;
-					ROS_INFO("[unicorn_statemachine] Loading complete!");
-				}*/
 				cmd_vel_pub_.publish(man_cmd_vel_);
 				break;
 			default:
@@ -439,7 +430,6 @@ int UnicornState::sendGoal(const float& x, float y, float yaw)
 
   	move_base_clt_.sendGoal(goal);
 
-  	// move_base_clt_.waitForResult();
   	return 1;
 }
 
