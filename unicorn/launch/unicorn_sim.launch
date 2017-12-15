@@ -1,18 +1,16 @@
-<!-- Launches Gazebo with predefined settings with the Unicorn platform -->
-
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Launches Gazebo with predefined settings with the Unicorn platform -->
 <launch>
-
-
 	<!-- roslaunch arguments -->
 	<arg name="use_teb_planner" default="true"/>
 	<arg name="show_rviz" default="true"/>
 	<arg name="paused" default="false"/>
 	<arg name="debug" default="false"/>  	
-	<arg name="gazebo_gui" default="true"/>
+	<arg name="gazebo_gui" default="false"/>
 	<arg name="use_gmapping" default="false"/>
 	<arg name="scan_topic" value="scan_filtered"/>
 	<arg name="map_file" value="$(find unicorn_slam)/maps/gmap_map.yaml"/>
+	<rosparam param="odom_frame">odom_gazebo</rosparam>
 	<rosparam param="global_local">false</rosparam>
 	<rosparam param="frame_id">chassis_link</rosparam>
 
@@ -20,8 +18,6 @@
 	<param name="use_gui" value="false"/> 
 
 	<!-- Lidar angle limitations (rad) -->
-	<rosparam param="lower_angle">-1.57</rosparam>
-	<rosparam param="upper_angle">1.57</rosparam>
 	<rosparam param="use_sim_time">true</rosparam>
 
 	<group if="$(arg use_gmapping)">
@@ -93,8 +89,13 @@
 		<param name="publish_frequency" value="50"/>
 	</node>
 	
-	<!-- Starts laser filter to enable limitation of laserscan angle -->
-	<node name="laser_filter" pkg="unicorn" type="laser_scan_filter" output="screen"/>
+<!-- Starts laser filter to enable limitation of laserscan angle -->
+<node name="laser_filter" pkg="unicorn" type="laser_scan_filter" output="screen">
+<rosparam>
+ upper_angle: 1.57
+ lower_angle: -1.57
+</rosparam>
+</node>
 	
 	<!-- Starts interface between automower and unicorn to enable backward driving -->
 	<node name="am_unicorn_interface" pkg="unicorn" type="am_unicorn_interface" output="screen"/>

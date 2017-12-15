@@ -17,6 +17,11 @@ int main(int argc, char** argv){
 
 LaserFilter::LaserFilter()
 {
+  if (!n_.getParam("frame_id", chassis_frame_))
+  {
+    chassis_frame_ = "base_link";
+  }
+  ROS_INFO("[laser_filter]: chassis_frame: %s", chassis_frame_.c_str());
   std::string scan_topic;
   if (!n_.getParam("scan_topic", scan_topic))
   {
@@ -26,24 +31,62 @@ LaserFilter::LaserFilter()
   scan_pub_ = n_.advertise<sensor_msgs::LaserScan>(scan_topic.c_str(), 0);
   if (n_.getParam("/laser_filter/lower_angle", lower_angle_))
   {
-    ROS_INFO("laser_filter: Lower angle threshold: %f", lower_angle_);
+    ROS_INFO("[laser_filter]: Lower angle threshold: %f", lower_angle_);
   }
   else
   {
-    ROS_WARN("laser_filter: Lower angle threshold not set");
+    ROS_WARN("[laser_filter]: Lower angle threshold not set");
     lower_angle_ = -1.57;
   }
   if (n_.getParam("/laser_filter/upper_angle", upper_angle_))
   {
-    ROS_INFO("laser_filter: Upper angle threshold: %f", upper_angle_);
+    ROS_INFO("[laser_filter]: Upper angle threshold: %f", upper_angle_);
   }
   else
   {
-    ROS_WARN("laser_filter: Upper angle threshold not set");
+    ROS_WARN("[laser_filter]: Upper angle threshold not set");
     upper_angle_ = 1.57;
   }
-  lower_angle_ += M_PI / 4;
-  upper_angle_ += M_PI / 4;
+  float heading;
+  if(getLaserPose(heading))
+  {
+    ROS_INFO("[laser_filter] heading: %f", heading);
+  }
+  else
+  {
+    ROS_ERROR("[laser_filter] Transform to base_laser not available");
+    heading = 0;
+  }
+  lower_angle_ -= heading;
+  upper_angle_ -= heading;
+  
+}
+
+int LaserFilter::getLaserPose(float& heading)
+{
+  tf::StampedTransform transform;
+  ros::Time now = ros::Time::now();
+  try
+  {
+    tf_listener_.waitForTransform(chassis_frame_.c_str(),
+                  "base_laser", 
+                  now,
+                  ros::Duration(30.0));
+    tf_listener_.lookupTransform(chassis_frame_.c_str(),
+                  "base_laser", 
+                  now,
+                  transform);
+  }
+  catch(tf::TransformException& ex)
+  {
+    ROS_ERROR("%s", ex.what());
+    return 0;
+  }
+  tf::Quaternion quat = transform.getRotation();
+  double roll, pitch, yaw;
+  tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
+  heading = yaw;
+  return 1;
 }
 
 LaserFilter::~LaserFilter()
@@ -98,15 +141,15 @@ void LaserFilter::scanCallback(const sensor_msgs::LaserScan& input_scan)
   
 
   //populate the LaserScan message
-    scan_.header.frame_id = input_scan.header.frame_id;
-    scan_.time_increment = input_scan.time_increment;
-    scan_.angle_increment = input_scan.angle_increment;
-    scan_.scan_time = input_scan.scan_time;
-    scan_.range_min = input_scan.range_min;
-    scan_.range_max = input_scan.range_max;
-    scan_.header.stamp = start_time;
-    scan_.angle_min = start_angle;
-    scan_.angle_max = current_angle;
+  scan_.header.frame_id = input_scan.header.frame_id;
+  scan_.time_increment = input_scan.time_increment;
+  scan_.angle_increment = input_scan.angle_increment;
+  scan_.scan_time = input_scan.scan_time;
+  scan_.range_min = input_scan.range_min;
+  scan_.range_max = input_scan.range_max;
+  scan_.header.stamp = start_time;
+  scan_.angle_min = start_angle;
+  scan_.angle_max = current_angle;
  
   scan_.ranges.resize(count);
 
