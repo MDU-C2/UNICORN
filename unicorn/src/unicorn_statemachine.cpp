@@ -17,6 +17,45 @@ int main(int argc, char **argv)
 	return 0;
 }
 
+PidController::PidController(float Kp, float Ki, float Kd, float tolerance)
+: Kp_(Kp), Ki_(Ki), Kd_(Kd), tolerance_(tolerance)
+{
+	total_error_ = 0;
+	previous_error_ = 0;
+}
+
+void PidController::setLimit(double lower, double upper)
+{
+	lower_limit_ = lower;
+	upper_limit_ = upper;
+}
+
+float PidController::limit(float term)
+{
+	if (term < lower_limit_)
+	{
+		return lower_limit_;
+	}
+	else if (term > upper_limit_)
+	{
+		return upper_limit_;
+	}
+	return term;
+}
+
+void PidController::control(float& var, float error)
+{
+	float pidterm;
+	if (error < tolerance_)
+	{
+		total_error_ = 0;
+	}
+	total_error_ += error;
+	pidterm = error * Kp_ + total_error_ * Ki_ + (error-previous_error_) * Kd_;
+	previous_error_ = error;
+	var = limit(pidterm);
+}
+
 RefuseBin::RefuseBin()
 {
 	x = 0;
@@ -28,7 +67,7 @@ RangeSensor::RangeSensor(const std::string& sensor_topic)
 : TOPIC(sensor_topic)
 {
 	range_sub_ = n_.subscribe(TOPIC.c_str(), 0, &RangeSensor::rangeCallback, this);
-	range_ = 200.0;
+	range_ = 2.0;
 }
 
 void RangeSensor::rangeCallback(const sensor_msgs::Range& msg)
@@ -74,8 +113,8 @@ UnicornState::UnicornState()
   cmd_vel_pub_ = n_.advertise<geometry_msgs::Twist>("/unicorn/cmd_vel", 0);
   odom_sub_ = n_.subscribe(odom_topic.c_str(), 0, &UnicornState::odomCallback, this);
   acc_cmd_srv_ = n_.advertiseService("cmd_charlie", &UnicornState::accGoalServer, this);
-  range_sensor_list_["ultrasonic_bm"] = new RangeSensor("ultrasonic_bmr");
-  range_sensor_list_["ultrasonic_br"] = new RangeSensor("ultrasonic_bml");
+  range_sensor_list_["ultrasonic_bmr"] = new RangeSensor("ultrasonic_bmr");
+  range_sensor_list_["ultrasonic_bml"] = new RangeSensor("ultrasonic_bml");
 
   n_.getParam("global_local", run_global_loc);
   if (run_global_loc)
@@ -86,6 +125,9 @@ UnicornState::UnicornState()
   state_ = current_state::MANUAL;
   loading_state_ = current_state::ALIGNING;
   move_base_active_ = 0;
+  velocity_pid_ = new PidController(0.3, 0.1, 0.0 ,0.05);
+  velocity_pid_->setLimit(-0.3, 0.3);
+
 }
 void UnicornState::globalLocalization()
 {
@@ -271,7 +313,8 @@ void UnicornState::active()
 {
 	int c = getCharacter();
 	processKey(c);
-
+	float current_range = (range_sensor_list_["ultrasonic_bmr"]->getRange()*sin(M_PI/6) +
+							range_sensor_list_["ultrasonic_bml"]->getRange()*sin(M_PI/6)) / 2;
 	
 	switch(state_)
 	{
@@ -310,11 +353,10 @@ void UnicornState::active()
 		break;
 
 		case current_state::LOADING:
+		
+		ROS_INFO("current range: %f", current_range);
 		switch(loading_state_)
 		{
-			/** Rotates the machine 180 degrees relative to current position.
-			* @todo Rotate to align with current heading of garbage disposal.
-			*/
 			case current_state::ALIGNING:
 				if (!move_base_active_)
 		    	{
@@ -337,11 +379,17 @@ void UnicornState::active()
 			*/
 			case current_state::ENTERING:
 				man_cmd_vel_.angular.z = 0;
-				ROS_INFO("current range: %f", range_sensor_list_["ultrasonic_bm"]->getRange());
-				if((range_sensor_list_["ultrasonic_bm"]->getRange() > 30.0)
-					&&(range_sensor_list_["ultrasonic_bm"]->getRange() < 200.0))
+				// float current_range = (range_sensor_list_["ultrasonic_bmr"]->getRange()*sin(M_PI/6) +
+				// 					  range_sensor_list_["ultrasonic_bml"]->getRange()*sin(M_PI/6)) / 2;
+				// ROS_INFO("current range: %f", current_range);
+				if((current_range > 0.3)
+					&&(current_range < 2.0))
 				{
 					man_cmd_vel_.linear.x = -0.17;
+					/*Alternatively use pid*/
+					/*float tmp;
+					velocity_pid_->control(tmp, -current_range);
+					man_cmd_vel_.linear.x = tmp;*/
 				}
 				else
 				{
@@ -367,8 +415,8 @@ void UnicornState::active()
 		    		ROS_INFO("[unicorn_statemachine] Exiting garbage disposal");
 		    		man_cmd_vel_.linear.x = 0.15;
 				}
-				if ((range_sensor_list_["ultrasonic_bm"]->getRange() > 100.0)
-					&&(range_sensor_list_["ultrasonic_bm"]->getRange() < 200.0))
+				if ((current_range > 1.0)
+					&&(current_range < 2.0))
 				{
 					man_cmd_vel_.linear.x = 0.0;
 					ROS_INFO("[unicorn_statemachine] Loading complete!");

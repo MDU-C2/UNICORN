@@ -7,8 +7,8 @@ local_costmap:
   #The order of the plugins affects the costmap
   plugins:
   - {name: static_layer,     type: "costmap_2d::StaticLayer"}
-  - {name: obstacle_layer,    type: "costmap_2d::ObstacleLayer"}
   - {name: sonar_layer,       type: "range_sensor_layer::RangeSensorLayer"}
+  - {name: obstacle_layer,    type: "costmap_2d::ObstacleLayer"}
   - {name: inflation_layer,   type: "costmap_2d::InflationLayer"}
   
 

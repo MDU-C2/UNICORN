@@ -258,13 +258,13 @@
   </joint>
   <ultrasonic_sensor frame="base_ultrasonic_bl" topic="bl" robot_namespace="$(arg robot_namespace)"/>
   <joint name="ultrasonic_mount_joint_bl" type="fixed">
-    <origin xyz="0.45 -0.2 0.0" rpy="0 0 ${-3*M_PI/4}"/>
+    <origin xyz="0.45 -0.2 0.0" rpy="0 0 ${M_PI-55*M_PI/180}"/>
     <parent link="chassis_link"/>
     <child link="base_ultrasonic_bl" />
   </joint>
   <ultrasonic_sensor frame="base_ultrasonic_fl" topic="fl" robot_namespace="$(arg robot_namespace)"/>
   <joint name="ultrasonic_mount_joint_fl" type="fixed">
-    <origin xyz="-0.2 -0.25 0.0" rpy="0 0 ${5*M_PI/4}"/>
+    <origin xyz="-0.2 -0.25 0.0" rpy="0 0 ${M_PI+55*M_PI/180}"/>
     <parent link="chassis_link"/>
     <child link="base_ultrasonic_fl" />
   </joint>

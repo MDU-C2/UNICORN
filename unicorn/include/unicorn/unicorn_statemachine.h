@@ -54,6 +54,20 @@ public:
 	float yaw;
 };
 
+class PidController
+{
+public:
+	PidController(float Kp, float Ki, float Kd, float tolerance);
+	void control(float& var, float error);
+	void setLimit(double lower, double upper);
+	float limit(float term);
+private:
+	const float Kp_, Ki_, Kd_, tolerance_;
+	float previous_error_;
+	float total_error_;
+	double lower_limit_, upper_limit_;
+};
+
 /** @brief Class for reading data of rangesensors*/
 class RangeSensor
 {
@@ -134,6 +148,8 @@ private:
 	std::string frame_id_;
 	tf::TransformListener tf_listener_;
 	RefuseBin refuse_bin_pose_;
+	PidController* velocity_pid_;
+
 
 	int state_, loading_state_; 
 	int move_base_active_;

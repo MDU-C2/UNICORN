@@ -24,8 +24,8 @@ RangeSensor::RangeSensor(std::string sensor_topic, std::string sensor_frame)
 	range_msg_.header.frame_id = sensor_frame.c_str();
 	range_msg_.radiation_type = sensor_msgs::Range::ULTRASOUND;
 	range_msg_.min_range = 0.2;
-	range_msg_.max_range = 2.0;
-	range_msg_.field_of_view = 0.25;
+	range_msg_.max_range = 8.0;
+	range_msg_.field_of_view = 15*M_PI/180;
 }
 
 void RangeSensor::setRange(float range)
@@ -58,7 +58,8 @@ RangeDriver::RangeDriver()
   		ros::shutdown();
 	}
 	std::vector<std::string> range_name_list;
-    n_.getParam("/move_base/local_costmap/sonar_layer/topics", range_name_list);
+	/*"/move_base/local_costmap/sonar_layer/topics"*/
+    n_.getParam("range_sensor_driver/topics", range_name_list);
     if (range_name_list.size() > 0)
     {
     	for (int i = 0; i < range_name_list.size(); ++i)
