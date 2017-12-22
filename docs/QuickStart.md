@@ -18,15 +18,20 @@ If not, check if you are connected to unicorn-hotspot and try again.
 
 ### Software
 
-Make sure that the jetson tx1 is running the latest branch, either using github which requires an internet connection:
+Make sure that the jetson tx2 is running the latest branch, either using github which requires an internet connection:
 
 > roscd unicorn && git fetch
+
 > git remote show origin
+
 > git checkout <correct-branch>
+
+> git pull
 
 Or by copying files from your host computer:
 
 > cd ~/catkin_ws/src
+
 > scp -r UNICORN nvidia@10.42.0.1:/home/nvidia/catkin_ws/src
 
 Copy this function into ~/.bashrc if you will be updating the platform frequently.
