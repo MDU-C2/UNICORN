@@ -1,15 +1,16 @@
-#Independent settings for the local planner's costmap. Detailed descriptions of these parameters can be found at http://www.ros.org/wiki/costmap_2d
+#Independent settings for the local planner's costmap. 
+#Detailed descriptions of these parameters can be found at http://www.ros.org/wiki/costmap_2d
+
+#All distances are in meters
 
 local_costmap:
-  #We'll publish the voxel grid used by this costmap
+  #The order of the plugins affects the costmap
   plugins:
   - {name: static_layer,     type: "costmap_2d::StaticLayer"}
+  - {name: sonar_layer,       type: "range_sensor_layer::RangeSensorLayer"}
   - {name: obstacle_layer,    type: "costmap_2d::ObstacleLayer"}
-  #- {name: voxel_layer,       type: "costmap_2d::VoxelLayer"}
   - {name: inflation_layer,   type: "costmap_2d::InflationLayer"}
-  # - {name: static_layer,     type: "costmap_2d::StaticLayer"}
   
-  publish_voxel_map: false
 
   #Set the global and robot frames for the costmap
   global_frame: odom
@@ -33,3 +34,4 @@ local_costmap:
   inflation_layer:
     inflation_radius: 3
     cost_scaling_factor: 10.0
+

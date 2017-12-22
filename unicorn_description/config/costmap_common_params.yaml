@@ -45,10 +45,11 @@ obstacle_layer:
 
 
 
-#sonar_layer:
-#  topics: [ '/ultrasonic_fr', '/ultrasonic_fm', '/ultrasonic_fl', '/ultrasonic_br', '/ultrasonic_bm', '/ultrasonic_bl', '/ultrasonic_rm', '/ultrasonic_lm', '/ultrasonic_r', '/ultrasonic_l' ]
-#  no_readings_timeout: 1.0
-#  clear_on_max_reading: true
+
+sonar_layer:
+ topics: [ '/ultrasonic_fr', '/ultrasonic_fm', '/ultrasonic_fl', '/ultrasonic_br', '/ultrasonic_bm', '/ultrasonic_bl', '/ultrasonic_rm', '/ultrasonic_lm', '/ultrasonic_r', '/ultrasonic_l' ]
+ no_readings_timeout: 1.0
+ clear_on_max_reading: true
 
 
 

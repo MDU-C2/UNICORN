@@ -1,3 +1,5 @@
+// Statemachine for the unicorn platform
+
 #include <unicorn/unicorn_statemachine.h>
 
 int main(int argc, char **argv)
@@ -8,7 +10,6 @@ int main(int argc, char **argv)
 	ros::Rate r(50);
 	while(ros::ok())
 	{
-	  // return 0;
       statemachine.active();
 	  ros::spinOnce();
 	  r.sleep();
@@ -16,16 +17,63 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-RangeSensor::RangeSensor(std::string sensor_topic)
+PidController::PidController(float Kp, float Ki, float Kd, float tolerance)
+: Kp_(Kp), Ki_(Ki), Kd_(Kd), tolerance_(tolerance)
+{
+	total_error_ = 0;
+	previous_error_ = 0;
+}
+
+void PidController::setLimit(double lower, double upper)
+{
+	lower_limit_ = lower;
+	upper_limit_ = upper;
+}
+
+float PidController::limit(float term)
+{
+	if (term < lower_limit_)
+	{
+		return lower_limit_;
+	}
+	else if (term > upper_limit_)
+	{
+		return upper_limit_;
+	}
+	return term;
+}
+
+void PidController::control(float& var, float error)
+{
+	float pidterm;
+	if (error < tolerance_)
+	{
+		total_error_ = 0;
+	}
+	total_error_ += error;
+	pidterm = error * Kp_ + total_error_ * Ki_ + (error-previous_error_) * Kd_;
+	previous_error_ = error;
+	var = limit(pidterm);
+}
+
+RefuseBin::RefuseBin()
+{
+	x = 0;
+	y = 0;
+	yaw = 0;
+}
+
+RangeSensor::RangeSensor(const std::string& sensor_topic)
 : TOPIC(sensor_topic)
 {
 	range_sub_ = n_.subscribe(TOPIC.c_str(), 0, &RangeSensor::rangeCallback, this);
-	range_ = 200.0;
+	range_ = 2.0;
 }
 
 void RangeSensor::rangeCallback(const sensor_msgs::Range& msg)
 {
 	range_ = msg.range;
+
 }
 
 float RangeSensor::getRange()
@@ -36,13 +84,13 @@ float RangeSensor::getRange()
 UnicornState::UnicornState() 
 : move_base_clt_("move_base", true)
 {
-  bool run_global_loc;
+  bool run_global_loc, sim_time;
   std::string odom_topic;
-  n_.getParam("global_local", run_global_loc);
-  if (run_global_loc)
+  if (!n_.getParam("use_sim_time", sim_time))
   {
-    globalLocalization();
+  	sim_time = false;
   }
+  ROS_INFO("sim_time: %i", sim_time);
 
   if(!n_.getParam("max_angular_vel", MAX_ANGULAR_VEL))
   {
@@ -62,6 +110,7 @@ UnicornState::UnicornState()
   {
   	frame_id_ = "base_link";
   }
+  
   ROS_INFO("[unicorn_statemachine] Robot frame_id: %s", frame_id_.c_str());
   ROS_INFO("[unicorn_statemachine] Listening to %s", odom_topic.c_str());
 
@@ -69,18 +118,35 @@ UnicornState::UnicornState()
   amcl_global_clt_ = n_.serviceClient<std_srvs::Empty>("/global_localization");
   cmd_vel_pub_ = n_.advertise<geometry_msgs::Twist>("/unicorn/cmd_vel", 0);
   odom_sub_ = n_.subscribe(odom_topic.c_str(), 0, &UnicornState::odomCallback, this);
-  range_sensor_list_["ultrasonic_bm"] = new RangeSensor("ultrasonic_bm");
-  range_sensor_list_["ultrasonic_br"] = new RangeSensor("ultrasonic_br");
-  range_sensor_list_["ultrasonic_bl"] = new RangeSensor("ultrasonic_bl");
+  acc_cmd_srv_ = n_.advertiseService("cmd_charlie", &UnicornState::accGoalServer, this);
+  
+  if(sim_time)
+  {
+	range_sensor_list_["ultrasonic_bm"] = new RangeSensor("ultrasonic_bm");
+  }
+  else
+  {
+  	range_sensor_list_["ultrasonic_bmr"] = new RangeSensor("ultrasonic_bmr");
+  	range_sensor_list_["ultrasonic_bml"] = new RangeSensor("ultrasonic_bml");
+  }
+
+  n_.getParam("global_local", run_global_loc);
+  if (run_global_loc)
+  {
+    globalLocalization();
+  }
 
   state_ = current_state::MANUAL;
   loading_state_ = current_state::ALIGNING;
   move_base_active_ = 0;
+  velocity_pid_ = new PidController(0.3, 0.1, 0.0 ,0.05);
+  velocity_pid_->setLimit(-0.3, 0.3);
+
 }
 void UnicornState::globalLocalization()
 {
   std_srvs::Empty srv;
-  ros::service::waitForService("/global_localization", -1);
+  ros::service::waitForService("/global_localization", 1);
 
   if (amcl_global_clt_.call(srv))
   {
@@ -128,6 +194,38 @@ std::string UnicornState::stateToString(int state)
 	}
 }
 
+int UnicornState::getInput(float& val)
+{
+	float tmp;
+	if ( !(std::cin >> tmp) )
+    {
+      std::cin.clear();
+      std::cin.ignore();
+      ROS_ERROR("Incorrect entry. Try again.");
+      printUsage();
+      return 0;
+    }
+    val = tmp;
+    return 1;
+}
+
+bool UnicornState::accGoalServer(unicorn::CharlieCmd::Request  &req, unicorn::CharlieCmd::Response &res)
+{
+	if (state_ == current_state::MANUAL)
+	{
+		res.response = 0;
+		return false;
+	}
+	if(sendGoal(req.goal.x, req.goal.y, req.goal.theta))
+	{
+		res.response = 1;
+	}
+	else
+	{
+		res.response = 0;
+	}
+}
+
 void UnicornState::processKey(int c)
 {
   float x,y,yaw;
@@ -147,9 +245,15 @@ void UnicornState::processKey(int c)
   	}
   	else
   	{
-    	std::cout << "Target x: "; std::cin >> x;
-    	std::cout << "Target y: "; std::cin >> y;
-    	std::cout << "Target yaw: "; std::cin >> yaw;
+  		std::cout << "Target x: ";
+  		if(!getInput(x))
+    		return;
+    	std::cout << "Target y: ";
+    	if(!getInput(y))
+    		return;
+    	std::cout << "Target yaw: ";
+    	if(!getInput(yaw))
+    		return;
     	sendGoal(x,y,yaw);
     	state_ = current_state::AUTONOMOUS;
     	printUsage();
@@ -172,6 +276,15 @@ void UnicornState::processKey(int c)
   }
   else if (c == '4')
   {
+	std::cout << "Refuse bin x: ";
+ 	if(!getInput(refuse_bin_pose_.x))
+   		return;
+   	std::cout << "Refuse bin y: ";
+   	if(!getInput(refuse_bin_pose_.y))
+   		return;
+   	std::cout << "Refuse bin yaw: ";
+   	if(!getInput(refuse_bin_pose_.yaw))
+   		return;
   	state_ = current_state::LOADING;
   	loading_state_ = current_state::ALIGNING;
   	man_cmd_vel_.angular.z = 0;
@@ -180,9 +293,15 @@ void UnicornState::processKey(int c)
   }
   else if (c == '5')
   {
-   	std::cout << "Target x: "; std::cin >> x;
-   	std::cout << "Target y: "; std::cin >> y;
-   	std::cout << "Target yaw: "; std::cin >> yaw;
+   	std::cout << "Target x: ";
+  	if(!getInput(x))
+   		return;
+   	std::cout << "Target y: ";
+   	if(!getInput(y))
+   		return;
+   	std::cout << "Target yaw: ";
+   	if(!getInput(yaw))
+   		return;
    	sendMoveCmd(x,y,yaw);
    	state_ = current_state::AUTONOMOUS;
    	printUsage();
@@ -208,7 +327,14 @@ void UnicornState::active()
 {
 	int c = getCharacter();
 	processKey(c);
-
+	// float current_range = (range_sensor_list_["ultrasonic_bmr"]->getRange()*sin(M_PI/6) +
+	// 						range_sensor_list_["ultrasonic_bml"]->getRange()*sin(M_PI/6)) / 2;
+	float current_range = 0;
+	for (std::map<std::string, RangeSensor*>::iterator it = range_sensor_list_.begin(); it != range_sensor_list_.end(); ++it)
+	{
+		current_range += it->second->getRange();
+	}
+	current_range /= range_sensor_list_.size();
 	
 	switch(state_)
 	{
@@ -224,15 +350,23 @@ void UnicornState::active()
 		case current_state::MANUAL:
 		if (c == 'a')
 		{
-			man_cmd_vel_.angular.z = MAX_ANGULAR_VEL;
+			if (man_cmd_vel_.angular.z < MAX_ANGULAR_VEL)
+			{
+				man_cmd_vel_.angular.z += MAX_ANGULAR_VEL;
+			}
 		}
 		else if (c == 'w')
 		{
 			man_cmd_vel_.linear.x = MAX_LINEAR_VEL;
+			man_cmd_vel_.angular.z = 0;
 		}
 		else if (c == 'd')
 		{
-			man_cmd_vel_.angular.z = -MAX_ANGULAR_VEL;
+			if (man_cmd_vel_.angular.z > -MAX_ANGULAR_VEL)
+			{
+				man_cmd_vel_.angular.z -= MAX_ANGULAR_VEL;
+			}
+			
 		}
 		else if (c == 's')
 		{
@@ -242,21 +376,22 @@ void UnicornState::active()
 		else if (c == 'x')
 		{
 			man_cmd_vel_.linear.x = -MAX_LINEAR_VEL;
+			man_cmd_vel_.angular.z = 0;
 		}
 		cmd_vel_pub_.publish(man_cmd_vel_);
 		break;
 
 		case current_state::LOADING:
+		
 		switch(loading_state_)
 		{
-			/** Rotates the machine 180 degrees relative to current position.
-			* @todo Rotate to align with current heading of garbage disposal.
-			*/
 			case current_state::ALIGNING:
 				if (!move_base_active_)
 		    	{
 		    		ROS_INFO("[unicorn_statemachine] Aligning with garbage disposal...");
-		    		sendGoal(0,0,-1.42);
+		    		sendGoal(refuse_bin_pose_.x + 1.5*cos(refuse_bin_pose_.yaw)
+		    			,refuse_bin_pose_.y + 1.5*sin(refuse_bin_pose_.yaw)
+		    			,refuse_bin_pose_.yaw);
 		    		move_base_active_ = 1;
 		    		return;
 		    	}
@@ -272,12 +407,20 @@ void UnicornState::active()
 			*/
 			case current_state::ENTERING:
 				man_cmd_vel_.angular.z = 0;
-				ROS_INFO("current range: %f", range_sensor_list_["ultrasonic_bm"]->getRange());
-				if((range_sensor_list_["ultrasonic_bm"]->getRange() > 30.0)
-					&&(range_sensor_list_["ultrasonic_bm"]->getRange() < 200.0))
+				// float current_range = (range_sensor_list_["ultrasonic_bmr"]->getRange()*sin(M_PI/6) +
+				// 					  range_sensor_list_["ultrasonic_bml"]->getRange()*sin(M_PI/6)) / 2;
+				// ROS_INFO("current range: %f", current_range);
+				if((current_range > 0.3)
+					&&(current_range < 2.0))
 				{
-					// ROS_INFO("current range: %f", range_sensor_list_["ultrasonic_bm"]->getRange());
-					man_cmd_vel_.linear.x = -0.17;
+					ROS_INFO("current range: %f", current_range);
+
+					// man_cmd_vel_.linear.x = -0.17;
+					/*Alternatively use pid*/
+					float pidterm;
+					velocity_pid_->control(pidterm, -current_range);
+					ROS_INFO("pidterm: %f", pidterm);
+					man_cmd_vel_.linear.x = pidterm;
 				}
 				else
 				{
@@ -300,27 +443,17 @@ void UnicornState::active()
 			case current_state::EXITING:
 				if (c == 'k')
 				{
-					/*sendMoveCmd(1.5,0,0);
-		    		move_base_active_ = 1;
-		    		ROS_INFO("[unicorn_statemachine] Exiting garbage disposal");		    		
-		    		return;*/
 		    		ROS_INFO("[unicorn_statemachine] Exiting garbage disposal");
 		    		man_cmd_vel_.linear.x = 0.15;
 				}
-				if ((range_sensor_list_["ultrasonic_bm"]->getRange() > 100.0)
-					&&(range_sensor_list_["ultrasonic_bm"]->getRange() < 200.0))
+				if ((current_range > 1.0)
+					&&(current_range < 2.0))
 				{
 					man_cmd_vel_.linear.x = 0.0;
 					ROS_INFO("[unicorn_statemachine] Loading complete!");
 					state_ = current_state::IDLE;
 					printUsage();
 				}
-				/*if (move_base_clt_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED && move_base_active_)
-				{
-					move_base_active_ = 0;
-					state_ = current_state::IDLE;
-					ROS_INFO("[unicorn_statemachine] Loading complete!");
-				}*/
 				cmd_vel_pub_.publish(man_cmd_vel_);
 				break;
 			default:
@@ -338,28 +471,29 @@ void UnicornState::active()
 	}
 }
 
-void UnicornState::sendGoal(float x, float y, float yaw)
+int UnicornState::sendGoal(const float& x, float y, float yaw)
 {
 	try {
 	  float check_input=boost::lexical_cast<float>(x);
-	} catch(boost::bad_lexical_cast &) {
+	} catch(boost::bad_lexical_cast &e) {
+	  ROS_INFO("%s", e.what());
 	  ROS_ERROR("[unicorn_statemachine] x is undefined");
 	  state_ = current_state::IDLE;
-	  return;
+	  return -1;
 	}
 	try {
 	  float check_input=boost::lexical_cast<float>(y);
 	} catch(boost::bad_lexical_cast &) {
 	  ROS_ERROR("[unicorn_statemachine] y is undefined");
 	  state_ = current_state::IDLE;
-	  return;
+	  return -1;
 	}
 	try {
 	  float check_input=boost::lexical_cast<float>(yaw);
 	} catch(boost::bad_lexical_cast &) {
 	  ROS_ERROR("[unicorn_statemachine] yaw is undefined");
 	  state_ = current_state::IDLE;
-	  return;
+	  return -1;
 	}
     while(!move_base_clt_.waitForServer(ros::Duration(5.0)))
     {
@@ -375,8 +509,7 @@ void UnicornState::sendGoal(float x, float y, float yaw)
 
   	move_base_clt_.sendGoal(goal);
 
-  	// move_base_clt_.waitForResult();
-
+  	return 1;
 }
 
 void UnicornState::sendMoveCmd(float x, float y, float yaw)

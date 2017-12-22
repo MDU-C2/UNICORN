@@ -1,22 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <launch>
+	
 <!-- roslaunch arguments -->
 <arg name="debug" default="false"/>
 <arg name="use_gmapping" default="false"/>
+<arg name="use_orbbec" default="false"/> <!-- Set to false if using zed camera / true for orbbec -->
 <arg name="scan_topic" value="scan_filtered"/>
-<arg name="map_file" value="$(find unicorn_slam)/maps/scenario_map.yaml"/>
+<arg name="map_file" value="$(find unicorn_slam)/maps/work_room.yaml"/>
 <arg name="lidar_ip" default="192.168.0.100" />
 
 <!-- Joint pos gui -->
 <param name="use_gui" value="false"/>
-
-<!-- Lidar angle limitations (rad) -->
-<rosparam param="lower_angle">-1.57</rosparam>
-<rosparam param="upper_angle">1.57</rosparam>
-
-<!-- Range sensor -->
-<rosparam param="serial_port">/dev/ttyACM0</rosparam>
-<rosparam param="range_sensor_list">["bm"]</rosparam>
 
 <group if="$(arg use_gmapping)">
 
@@ -29,7 +23,7 @@
 </group>
 
 <group unless="$(arg use_gmapping)">
-	<rosparam param="global_local">true</rosparam>
+	<rosparam param="global_local">false</rosparam>
 	<!-- Run the map server -->
 	<node pkg="map_server" type="map_server" args="$(arg map_file)" respawn="true" name="map" />
 
@@ -41,9 +35,12 @@
 
 	
 </group>
+<group if="$(arg use_orbbec)">
 <!-- Run Orbbec camera -->
-<!--<include file="$(find usb_cam)/launch/usb_cam-test.launch"/>
-<include file ="$(find astra_launch)/launch/astrapro.launch"/> -->
+<include file="$(find usb_cam)/launch/usb_cam-test.launch"/>
+<include file ="$(find astra_launch)/launch/astrapro.launch"/>
+</group>
+<group unless="$(arg use_orbbec)">
 <!-- Run zed camera -->
  <group ns="zed">
     <include file="$(find zed_wrapper)/launch/zed_camera.launch">
@@ -55,7 +52,8 @@
         <arg name="depth_frame" value="zed_depth_camera"/>
         <arg name="confidence_val" value="80"/>
     </include>
-</group> 
+</group>
+
 
 <!-- Run a VoxelGrid filter to clean NaNs and downsample the pointcloud output goes to cloud_filtered -->
 <node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen" />
@@ -64,12 +62,13 @@
 <remap from="~output" to="cloud_filtered" />
 <rosparam>
  filter_field_name: z
- filter_limit_min: 0.2
+ filter_limit_min: 0.3
  filter_limit_max: 1.5
  filter_limit_negative: False
  leaf_size: 0.02
 </rosparam>
 </node>
+</group>
 
 <!-- load joint controller configurations from YAML file to parameter server -->
 <rosparam file="$(find am_control)/config/joint_position_control.yaml" command="load" />
@@ -88,9 +87,8 @@
 	pkg="unicorn" 
 	type="range_sensor_driver" 
 	output="screen">
-	<param name="serial_port" value="/dev/ttyACM0"/>
 <rosparam>
- range_sensor_list: [bm]
+ serial_port: "/dev/ttyACM0"
 </rosparam>
 </node>
 
@@ -137,10 +135,15 @@
 <!-- <node name="initialpose_publisher" pkg="unicorn" type="pub_initialpose"/> -->
 
 <!-- Starts laser filter to enable limitation of laserscan angle -->
-<node name="laser_filter" pkg="unicorn" type="laser_scan_filter" output="screen"/>
+<node name="laser_filter" pkg="unicorn" type="laser_scan_filter" output="screen">
+<rosparam>
+ upper_angle: 1.57
+ lower_angle: -1.57
+</rosparam>
+</node>
 
 
-<node pkg="robot_localization" type="ukf_localization_node" name="ukf_se" clear_params="true">
+<node pkg="robot_localization" type="ukf_localization_node" name="ukf_localization_node" clear_params="true">
    <rosparam command="load" file="$(find unicorn)/config/ukf_template.yaml" />
 </node>
 

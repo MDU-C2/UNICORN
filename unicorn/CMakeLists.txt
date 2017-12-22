@@ -60,12 +60,12 @@ find_package(Boost REQUIRED)
 # )
 
 ## Generate services in the 'srv' folder
-#  add_service_files(
-#  	DIRECTORY
-#  	srv
-#    FILES
-#    init_pose.srv
-# )
+  add_service_files(
+  	DIRECTORY
+  	srv
+    FILES
+    CharlieCmd.srv
+ )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
