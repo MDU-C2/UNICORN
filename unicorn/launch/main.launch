@@ -3,7 +3,7 @@
 	
 <!-- roslaunch arguments -->
 <arg name="debug" default="false"/>
-<arg name="use_gmapping" default="false"/>
+<arg name="use_gmapping" default="true"/>
 <arg name="use_orbbec" default="false"/> <!-- Set to false if using zed camera / true for orbbec -->
 <arg name="scan_topic" value="scan_filtered"/>
 <arg name="map_file" value="$(find unicorn_slam)/maps/hospital_map_3.yaml"/>
@@ -64,7 +64,7 @@
 <remap from="~output" to="cloud_filterd_height" />
 <rosparam>
  filter_field_name: z
- filter_limit_min: 0.0
+ filter_limit_min: -0.15
  filter_limit_max: 1.5
  filter_limit_negative: false
  leaf_size: 0.02
@@ -87,7 +87,7 @@
 <rosparam file="$(find am_control)/config/joint_position_control.yaml" command="load" />
 
 <!-- Urdf xml robot description loaded on the Parameter Server-->
-<param name="robot_description" command="$(find xacro)/xacro.py '$(find unicorn_description)/urdf/unicorn_target_2.urdf.xacro'" />
+<param name="robot_description" command="$(find xacro)/xacro.py '$(find unicorn_description)/urdf/unicorn_target.urdf.xacro'" />
 <!-- Starts interface between automower and unicorn to enable backward driving -->
 <node name="am_unicorn_interface" 
 	pkg="unicorn" 

@@ -84,8 +84,13 @@ float RangeSensor::getRange()
 UnicornState::UnicornState() 
 : move_base_clt_("move_base", true)
 {
-  bool run_global_loc;
+  bool run_global_loc, sim_time;
   std::string odom_topic;
+  if (!n_.getParam("use_sim_time", sim_time))
+  {
+  	sim_time = false;
+  }
+  ROS_INFO("sim_time: %i", sim_time);
 
   if(!n_.getParam("max_angular_vel", MAX_ANGULAR_VEL))
   {
@@ -105,6 +110,7 @@ UnicornState::UnicornState()
   {
   	frame_id_ = "base_link";
   }
+  
   ROS_INFO("[unicorn_statemachine] Robot frame_id: %s", frame_id_.c_str());
   ROS_INFO("[unicorn_statemachine] Listening to %s", odom_topic.c_str());
 
@@ -113,8 +119,16 @@ UnicornState::UnicornState()
   cmd_vel_pub_ = n_.advertise<geometry_msgs::Twist>("/unicorn/cmd_vel", 0);
   odom_sub_ = n_.subscribe(odom_topic.c_str(), 0, &UnicornState::odomCallback, this);
   acc_cmd_srv_ = n_.advertiseService("cmd_charlie", &UnicornState::accGoalServer, this);
-  range_sensor_list_["ultrasonic_bmr"] = new RangeSensor("ultrasonic_bmr");
-  range_sensor_list_["ultrasonic_bml"] = new RangeSensor("ultrasonic_bml");
+  
+  if(sim_time)
+  {
+	range_sensor_list_["ultrasonic_bm"] = new RangeSensor("ultrasonic_bm");
+  }
+  else
+  {
+  	range_sensor_list_["ultrasonic_bmr"] = new RangeSensor("ultrasonic_bmr");
+  	range_sensor_list_["ultrasonic_bml"] = new RangeSensor("ultrasonic_bml");
+  }
 
   n_.getParam("global_local", run_global_loc);
   if (run_global_loc)
@@ -313,8 +327,14 @@ void UnicornState::active()
 {
 	int c = getCharacter();
 	processKey(c);
-	float current_range = (range_sensor_list_["ultrasonic_bmr"]->getRange()*sin(M_PI/6) +
-							range_sensor_list_["ultrasonic_bml"]->getRange()*sin(M_PI/6)) / 2;
+	// float current_range = (range_sensor_list_["ultrasonic_bmr"]->getRange()*sin(M_PI/6) +
+	// 						range_sensor_list_["ultrasonic_bml"]->getRange()*sin(M_PI/6)) / 2;
+	float current_range = 0;
+	for (std::map<std::string, RangeSensor*>::iterator it = range_sensor_list_.begin(); it != range_sensor_list_.end(); ++it)
+	{
+		current_range += it->second->getRange();
+	}
+	current_range /= range_sensor_list_.size();
 	
 	switch(state_)
 	{
@@ -330,15 +350,23 @@ void UnicornState::active()
 		case current_state::MANUAL:
 		if (c == 'a')
 		{
-			man_cmd_vel_.angular.z = MAX_ANGULAR_VEL;
+			if (man_cmd_vel_.angular.z < MAX_ANGULAR_VEL)
+			{
+				man_cmd_vel_.angular.z += MAX_ANGULAR_VEL;
+			}
 		}
 		else if (c == 'w')
 		{
 			man_cmd_vel_.linear.x = MAX_LINEAR_VEL;
+			man_cmd_vel_.angular.z = 0;
 		}
 		else if (c == 'd')
 		{
-			man_cmd_vel_.angular.z = -MAX_ANGULAR_VEL;
+			if (man_cmd_vel_.angular.z > -MAX_ANGULAR_VEL)
+			{
+				man_cmd_vel_.angular.z -= MAX_ANGULAR_VEL;
+			}
+			
 		}
 		else if (c == 's')
 		{
@@ -348,13 +376,13 @@ void UnicornState::active()
 		else if (c == 'x')
 		{
 			man_cmd_vel_.linear.x = -MAX_LINEAR_VEL;
+			man_cmd_vel_.angular.z = 0;
 		}
 		cmd_vel_pub_.publish(man_cmd_vel_);
 		break;
 
 		case current_state::LOADING:
 		
-		ROS_INFO("current range: %f", current_range);
 		switch(loading_state_)
 		{
 			case current_state::ALIGNING:
@@ -385,11 +413,14 @@ void UnicornState::active()
 				if((current_range > 0.3)
 					&&(current_range < 2.0))
 				{
-					man_cmd_vel_.linear.x = -0.17;
+					ROS_INFO("current range: %f", current_range);
+
+					// man_cmd_vel_.linear.x = -0.17;
 					/*Alternatively use pid*/
-					/*float tmp;
-					velocity_pid_->control(tmp, -current_range);
-					man_cmd_vel_.linear.x = tmp;*/
+					float pidterm;
+					velocity_pid_->control(pidterm, -current_range);
+					ROS_INFO("pidterm: %f", pidterm);
+					man_cmd_vel_.linear.x = pidterm;
 				}
 				else
 				{

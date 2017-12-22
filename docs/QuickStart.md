@@ -29,6 +29,21 @@ Or by copying files from your host computer:
 > cd ~/catkin_ws/src
 > scp -r UNICORN nvidia@10.42.0.1:/home/nvidia/catkin_ws/src
 
+Copy this function into ~/.bashrc if you will be updating the platform frequently.
+
+```
+scp_file()
+{
+    my_pwd=$(pwd)
+    new_pwd=/home/nvidia/${my_pwd:15}/
+    scp -r "$@" nvidia@10.42.0.1:"$new_pwd"
+}
+```
+
+Usage example:
+
+> scp_file UNICORN/
+
 Remember to build the code if you update it:
 
 > cd ~/catkin_ws && catkin_make
@@ -55,7 +70,9 @@ Make two terminals and ssh from both to the jetson tx1 (you may run the teleop f
 In the first one run:
 
 > cd
+
 > ./lidar_connect.sh
+
 > roslaunch unicorn main_*.launch
 
 - In the second:
@@ -65,11 +82,13 @@ In the first one run:
 - Make another terminal and configure `ROS_IP` and `ROS_MASTER_URI` to enable reading topics from the jetson tx1.
 
 > export ROS_IP=$YOUR_IP
-> export ROS_MASTER_URI=http://10.42.0.1:11311
+
+> export ROS_MASTER_URI=`http://10.42.0.1:11311`
 
 Then start the interface to the unicorn state machine and (optionally) rviz:
 
 > rosrun unicorn unicorn_statemachine
+
 > rosrun rviz rviz
 
 ### Start automower
@@ -93,11 +112,11 @@ Shown by hrp_teleop node and indicates that the automower is not started. If you
 `SERIAL PORT DOESN'T EXIST`
 Shown by am_driver_safe_node started by main_*.launch and indicates that the jetson tx1 cannot find the automower. Make sure that the usb cable is plugged in (hehe) and that ACM is listed under devices.
 
->   ls /dev/ttyACM*
+> ls /dev/ttyACM*
 
 Compare the number behind ACM with the number in `main_*.launch` and edit if needed.
 
-LIDAR NOT PUBLISHING /SCAN
+`LIDAR NOT PUBLISHING /SCAN`
 Make sure that the variables `ROS_IP` and `ROS_MASTER_URI` are set correctly on your host computer.
 
 > echo $ROS_IP && echo $ROS_MASTER_URI

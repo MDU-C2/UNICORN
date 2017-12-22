@@ -1,4 +1,7 @@
-/** @file unicorn_statemachine.h*/
+/** 
+*	@file unicorn_statemachine.h
+*	@Author Alexander Karlsson (akn13013@student.mdh.se)
+*/
 
 #ifndef UNICORN_STATEMACHINE_H
 #define UNICORN_STATEMACHINE_H
@@ -21,7 +24,7 @@
 #include <cmath>
 #include <boost/lexical_cast.hpp>
 
-typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient; /** Client that calls actions from move_base */
+typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient; /**< Client that calls actions from move_base */
 
 /** @brief Function to get sign of input. */
 template <typename T> int sgn(T val) {
@@ -45,6 +48,7 @@ namespace current_state
 	};
 }
 
+/** @brief Storage class for refuse bin position*/
 class RefuseBin
 {
 public:
@@ -54,10 +58,26 @@ public:
 	float yaw;
 };
 
+/** @brief Class to define a PID controller.
+*	
+*	Controls a float variable based on input error.	
+*/
 class PidController
 {
 public:
+	/** @brief Constructor to initialize PID gains and error tolerance.
+	*	
+	*	@param Kp 	Proportional gain.
+	*	@param Ki 	Integral gain.
+	*	@param Kd 	Derivative gain.
+	*	@param tolerance 	error tolerance.
+	*/
 	PidController(float Kp, float Ki, float Kd, float tolerance);
+	/** @brief Calculate pidterm and control variable
+	*	
+	*	@param error 	error of output response
+	*	@param var 	new input into pid loop	
+	*/
 	void control(float& var, float error);
 	void setLimit(double lower, double upper);
 	float limit(float term);
@@ -144,11 +164,11 @@ private:
 	ros::Publisher move_base_cancel_pub_;
 	ros::Subscriber odom_sub_;
 	geometry_msgs::Twist man_cmd_vel_;
-	MoveBaseClient move_base_clt_; 		/**< Client to send commands to move_base*/
+	MoveBaseClient move_base_clt_; 		/**< Client used to send commands to move_base*/
 	std::string frame_id_;
 	tf::TransformListener tf_listener_;
 	RefuseBin refuse_bin_pose_;
-	PidController* velocity_pid_;
+	PidController* velocity_pid_; /**< PID to control position in x*/
 
 
 	int state_, loading_state_; 

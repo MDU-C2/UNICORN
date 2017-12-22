@@ -1,11 +1,12 @@
-# Configuration for timed elastic band planner (teb) and global planner #
+# Configuration for timed elastic band planner (teb) and global planner
+# More information @ http://wiki.ros.org/teb_local_planner
 
 # All distances are in meters
 # All angles are in radians
 # All velocities are m/s and angular velocities in rad/s
 
 recovery_behaviour_enabled: true
-controller_frequency: 10.0
+controller_frequency: 5.0
 
 # Global planner
 

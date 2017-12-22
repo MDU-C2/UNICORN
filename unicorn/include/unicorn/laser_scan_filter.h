@@ -1,3 +1,8 @@
+/**	
+*	@file laser_scan_filter.h
+*	@Author Alexander Karlsson (akn13013@student.mdh.se)
+*/
+
 #ifndef LASER_SCAN_FILTER_H
 #define LASER_SCAN_FILTER_H
 
@@ -29,7 +34,7 @@ public:
 	void publishScan();
 	/** @brief Computes static pose of base laser.
 	*	
-	*	@param heading, relative pose between rosparam "frame_id" and base_laser.
+	*	@param heading 	relative pose between rosparam "frame_id" and base_laser.
 	*	@return 1 if pose was found, 0 otherwise.
 	*/
 	int getLaserPose(float& heading);

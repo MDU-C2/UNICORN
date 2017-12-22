@@ -44,7 +44,7 @@ obstacle_layer:
 
 #Ultrasonic sensors params
 sonar_layer:
-  topics: ['/ultrasonic_br', '/ultrasonic_bmr', '/ultrasonic_bml', '/ultrasonic_bl', '/ultrasonic_fl', '/ultrasonic_fr'] #, '/ultrasonic_fmr', '/ultrasonic_fml']
+  topics: ['/ultrasonic_br', '/ultrasonic_bmr', '/ultrasonic_bml', '/ultrasonic_bl'] #, '/ultrasonic_fl', '/ultrasonic_fr', '/ultrasonic_fmr', '/ultrasonic_fml']
   no_readings_timeout: 0.5
   clear_on_max_reading: false
   clear_threshold: 0.6
