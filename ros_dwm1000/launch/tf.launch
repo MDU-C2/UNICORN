@@ -1,0 +1,19 @@
+
+<launch>
+<arg name="anchor1" default="4.72 -2.66 1 0 0 0"/>
+<arg name="anchor2" default="3.8 2.24 1 0 0 0"/>
+<arg name="anchor3" default="-1.7 -3.78 1 0 0 0"/>
+<arg name="anchor4" default="-9 -7 1.1 0 0 0"/>
+<arg name="anchor5" default="-9 -7 1.1 0 0 0"/>
+<arg name="anchor6" default="-9 -7 1.1 0 0 0"/>
+<arg name="anchor7" default="-9 -7 1.1 0 0 0"/>
+
+   <node pkg="tf" type="static_transform_publisher" name="uwbtfbroadcaster1" args="$(arg anchor1) 1 map 1 100" />
+   <node pkg="tf" type="static_transform_publisher" name="uwbtfbroadcaster2" args="$(arg anchor2) 1 map 2 100" />
+   <node pkg="tf" type="static_transform_publisher" name="uwbtfbroadcaster3" args="$(arg anchor3) 1 map 3 100" />
+   <node pkg="tf" type="static_transform_publisher" name="uwbtfbroadcaster4" args="$(arg anchor4) 1 map 4 100" />
+   <node pkg="tf" type="static_transform_publisher" name="uwbtfbroadcaster5" args="$(arg anchor5) 1 map 5 100" />
+   <node pkg="tf" type="static_transform_publisher" name="uwbtfbroadcaster6" args="$(arg anchor6) 1 map 6 100" />
+   <node pkg="tf" type="static_transform_publisher" name="uwbtfbroadcaster7" args="$(arg anchor7) 1 map 7 100" />
+
+</launch>

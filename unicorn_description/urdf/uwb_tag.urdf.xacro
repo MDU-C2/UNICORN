@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+	<xacro:macro name="uwbtag" params="frame:=uwb_t robot_namespace:=/" >
+	   <link name="${frame}">
+	    
+	    <visual>
+		<origin xyz = "0.0 0.0 0.0" rpy= "0.0 0.0 0.0" />
+		<geometry>
+			<!--mesh filename="package://unicorn_description/meshes/UWB.STL" /-->
+			<box size="0.05 0.05 0.05"/>
+		</geometry>
+
+   	    </visual>
+	    <collision>
+		<origin xyz = "0 0 0" rpy = "0 0 0" />
+		<geometry>
+		   <box size ="0 0 0"/>
+		</geometry>
+	    </collision>
+
+	   </link>
+	</xacro:macro>
+</robot>

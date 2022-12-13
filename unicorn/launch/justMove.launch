@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+	
+<!-- roslaunch arguments -->
+<arg name="debug" default="false"/>
+<arg name="scan_topic" value="scan"/>
+<rosparam param="frame_id">base_link</rosparam>
+
+<!-- Joint pos gui -->
+<param name="use_gui" value="false"/>
+
+<!-- load joint controller configurations from YAML file to parameter server -->
+<rosparam file="$(find am_control)/config/joint_position_control.yaml" command="load" />
+
+<!-- Urdf xml robot description loaded on the Parameter Server - added inorder param - changed from xarco.py to xarco -->
+<param name="robot_description" command="$(find xacro)/xacro --inorder '$(find unicorn_description)/urdf/unicorn_target.urdf.xacro'" />
+<!-- Starts interface between automower and unicorn to enable backward driving -->
+<node name="am_unicorn_interface" 
+	pkg="unicorn" 
+	type="am_unicorn_interface" 
+	output="screen">
+</node>
+
+
+<!-- Start the am_driver -->
+
+<node name="am_driver_safe" pkg="am_driver_safe" type="am_driver_safe_node" output="screen">
+	<param name="serialPort" value="/dev/charlieHRP" type="str" />
+	<param name="printCharge" value="false"/>
+<!-- Do not publish TF, ukf node should -->
+	<param name="publishTf" value="1"/>
+	<param name="pitchAndRoll" value="false"/>
+	<param name="publishGPS" value="false"/>
+	<param name="serialLog" value="false"/>
+	<param name="hil" value="0"/>
+	<param name="jsonFile" value="$(find am_driver_safe)/config/automower_hrp.json" type="string" />
+</node> 
+
+
+
+<!--Start the RPlidar A2 Driver -->
+
+  <node name="rplidarNode"          pkg="rplidar_ros"  type="rplidarNode" output="screen">
+		<param name="serial_port"         type="string" value="/dev/ttyUSB0"/>  
+		<param name="serial_baudrate"     type="int"    value="115200"/>
+		<param name="frame_id"            type="string" value="base_laser"/>
+		<param name="inverted"            type="bool"   value="false"/>
+		<param name="angle_compensate"    type="bool"   value="true"/>
+		<param name="filterMinAngle"      type="double" value="2.443"/>
+		<param name="filterMaxAngle"      type="double" value="3.840"/>
+  </node>
+
+
+<!-- source that publishes the joint positions as a sensor_msgs/JointState -->
+<param name="use_gui" value="false"/>
+<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+
+<!-- publish all the frames to TF -->
+<node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher">
+	<param name="publish_frequency" value="50"/>
+</node>
+
+
+</launch>
+
+
+
