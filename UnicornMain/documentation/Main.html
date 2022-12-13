@@ -1,0 +1,288 @@
+<HTML>
+<HEAD>
+<TITLE>Main.vi</TITLE>
+<META NAME="Author" CONTENT="">
+<META NAME="GENERATOR" CONTENT="G Development Environment">
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A NAME="Main.vi"></A><H2>Main.vi</H2>
+<P>The main Unicorn VI running all processes on the roboRIO.</P>
+<P>When running, a FPGA bitfile is read so the DIO ports will be dedicated to the FPGA.</P>
+<P><IMG SRC="Mainc.png" ALT="Main.vi"></P>
+<P><IMG SRC="Mainp.png" ALT="Main.vi"></P>
+<P><IMG SRC="Maind.png" ALT="Main.vi"></P>
+<HR>
+<A NAME="LED Main.vi"></A><H2>LED Main.vi</H2>
+<P></P>
+<P><IMG SRC="LED_Mainc.png" ALT="LED Main.vi"></P>
+<P><IMG SRC="LED_Maind.png" ALT="LED Main.vi"></P>
+<HR>
+<A NAME="GlobalVI.vi"></A><H2>GlobalVI.vi</H2>
+<P>Global variables for the Unicorn Main</P>
+<P><IMG SRC="GlobalVIgblc.png" ALT="GlobalVI.vi"></P>
+<P><IMG SRC="GlobalVIgblp.png" ALT="GlobalVI.vi"></P>
+<HR>
+<A NAME="LED_Controller.vi"></A><H2>LED_Controller.vi</H2>
+<P>Controlls the intention LED strip.  There are 4 different light states, startup, idle, navigating, warning.</P>
+<P>Startup - blinking yellow</P>
+<P>Idle - rotating green</P>
+<P>Navigating - directional white/green light</P>
+<P>Warning - rotating red </P>
+<P><IMG SRC="LED__Controllerc.png" ALT="LED_Controller.vi"></P>
+<P><IMG SRC="LED__Controllerp.png" ALT="LED_Controller.vi"></P>
+<P><IMG SRC="LED__Controllerd.png" ALT="LED_Controller.vi"></P>
+<HR>
+<A NAME="Lift_State_Machine.vi"></A><H2>Lift_State_Machine.vi</H2>
+<P>The state machine for the Lift System.</P>
+<P>Drives the lift forward, then upward, then back, then down to its origin.</P>
+<P><IMG SRC="Lift__State__Machinec.png" ALT="Lift_State_Machine.vi"></P>
+<P><IMG SRC="Lift__State__Machinep.png" ALT="Lift_State_Machine.vi"></P>
+<P><IMG SRC="Lift__State__Machined.png" ALT="Lift_State_Machine.vi"></P>
+<HR>
+<A NAME="Motor_Controller.vi"></A><H2>Motor_Controller.vi</H2>
+<P></P>
+<P><IMG SRC="Motor__Controllerc.png" ALT="Motor_Controller.vi"></P>
+<P><IMG SRC="Motor__Controllerp.png" ALT="Motor_Controller.vi"></P>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cenum.png" ALT="cenum"></P>
+</TD>
+<TD>
+<B>motorSelect</B> </TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cenum.png" ALT="cenum"></P>
+</TD>
+<TD>
+<B>direction</B> </TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cbool.png" ALT="cbool"></P>
+</TD>
+<TD>
+<B>stopMotors</B> </TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cerrcodeclst.png" ALT="cerrcodeclst"></P>
+</TD>
+<TD>
+<B>error in (no error)</B> <P><B>error in</B> can accept error information wired from VIs previously called. Use this information to decide if any functionality should be bypassed in the event of errors from other VIs.</P>
+<P></P>
+<P>Right-click the <B>error in</B> control on the front panel and select <B>Explain Error</B> or <B>Explain Warning</B> from the shortcut menu for more information about the error.</P>
+</TD>
+</TR>
+</Table>
+<UL>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cbool.png" ALT="cbool"></P>
+</TD>
+<TD>
+<B>status</B> <P><B>status</B> is TRUE (X) if an error occurred or FALSE (checkmark) to indicate a warning or that no error occurred.</P>
+<P></P>
+<P>Right-click the <B>error in</B> control on the front panel and select <B>Explain Error</B> or <B>Explain Warning</B> from the shortcut menu for more information about the error.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ci32.png" ALT="ci32"></P>
+</TD>
+<TD>
+<B>code</B> <P><B>code</B> is the error or warning code.</P>
+<P></P>
+<P>Right-click the <B>error in</B> control on the front panel and select <B>Explain Error</B> or <B>Explain Warning</B> from the shortcut menu for more information about the error.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cstr.png" ALT="cstr"></P>
+</TD>
+<TD>
+<B>source</B> <P><B>source</B> describes the origin of the error or warning.</P>
+<P></P>
+<P>Right-click the <B>error in</B> control on the front panel and select <B>Explain Error</B> or <B>Explain Warning</B> from the shortcut menu for more information about the error.</P>
+</TD>
+</TR>
+</Table>
+</UL>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ierrcodeclst.png" ALT="ierrcodeclst"></P>
+</TD>
+<TD>
+<B>error out</B> <P><B>error in</B> can accept error information wired from VIs previously called. Use this information to decide if any functionality should be bypassed in the event of errors from other VIs.</P>
+<P></P>
+<P>Right-click the <B>error in</B> control on the front panel and select <B>Explain Error</B> or <B>Explain Warning</B> from the shortcut menu for more information about the error.</P>
+</TD>
+</TR>
+</Table>
+<UL>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ibool.png" ALT="ibool"></P>
+</TD>
+<TD>
+<B>status</B> <P><B>status</B> is TRUE (X) if an error occurred or FALSE (checkmark) to indicate a warning or that no error occurred.</P>
+<P></P>
+<P>Right-click the <B>error in</B> control on the front panel and select <B>Explain Error</B> or <B>Explain Warning</B> from the shortcut menu for more information about the error.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ii32.png" ALT="ii32"></P>
+</TD>
+<TD>
+<B>code</B> <P><B>code</B> is the error or warning code.</P>
+<P></P>
+<P>Right-click the <B>error in</B> control on the front panel and select <B>Explain Error</B> or <B>Explain Warning</B> from the shortcut menu for more information about the error.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="istr.png" ALT="istr"></P>
+</TD>
+<TD>
+<B>source</B> <P><B>source</B> describes the origin of the error or warning.</P>
+<P></P>
+<P>Right-click the <B>error in</B> control on the front panel and select <B>Explain Error</B> or <B>Explain Warning</B> from the shortcut menu for more information about the error.</P>
+</TD>
+</TR>
+</Table>
+</UL>
+<P><IMG SRC="Motor__Controllerd.png" ALT="Motor_Controller.vi"></P>
+<HR>
+<A NAME="msgsBuilder_MasterMessage.vi"></A><H2>msgsBuilder_MasterMessage.vi</H2>
+<P></P>
+<P><IMG SRC="msgsBuilder__MasterMessagec.png" ALT="msgsBuilder_MasterMessage.vi"></P>
+<P><IMG SRC="msgsBuilder__MasterMessagep.png" ALT="msgsBuilder_MasterMessage.vi"></P>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cstr.png" ALT="cstr"></P>
+</TD>
+<TD>
+<B>msg in</B> </TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cstr.png" ALT="cstr"></P>
+</TD>
+<TD>
+<B>statusString</B> </TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ci32.png" ALT="ci32"></P>
+</TD>
+<TD>
+<B>liftState</B> </TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cnclst.png" ALT="cnclst"></P>
+</TD>
+<TD>
+<B>position</B> </TD>
+</TR>
+</Table>
+<UL>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cdbl.png" ALT="cdbl"></P>
+</TD>
+<TD>
+<B>x</B> </TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cdbl.png" ALT="cdbl"></P>
+</TD>
+<TD>
+<B>y</B> </TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cdbl.png" ALT="cdbl"></P>
+</TD>
+<TD>
+<B>z</B> </TD>
+</TR>
+</Table>
+</UL>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="csgl.png" ALT="csgl"></P>
+</TD>
+<TD>
+<B>avgDist</B> </TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="istr.png" ALT="istr"></P>
+</TD>
+<TD>
+<B>msg out</B> </TD>
+</TR>
+</Table>
+<P><IMG SRC="msgsBuilder__MasterMessaged.png" ALT="msgsBuilder_MasterMessage.vi"></P>
+<HR>
+<A NAME="R2100_Controller.vi"></A><H2>R2100_Controller.vi</H2>
+<P>Controlls the R2100 LIDAR. Waits for a run signal from the ROS subscriber then initializes the UART before entering a loop where it reads the distance data on the lidar until a message to stop is received from the ROS subscriber.</P>
+<P><IMG SRC="R2100__Controllerc.png" ALT="R2100_Controller.vi"></P>
+<P><IMG SRC="R2100__Controllerp.png" ALT="R2100_Controller.vi"></P>
+<P><IMG SRC="R2100__Controllerd.png" ALT="R2100_Controller.vi"></P>
+<HR>
+<A NAME="ROS_Publisher.vi"></A><H2>ROS_Publisher.vi</H2>
+<P>The ROS publisher bundles together several variables into a &quot;MasterMessage&quot; that is published on the ROS network. If there is an error in the ROS Write node the VI is exited.</P>
+<P><IMG SRC="ROS__Publisherc.png" ALT="ROS_Publisher.vi"></P>
+<P><IMG SRC="ROS__Publisherp.png" ALT="ROS_Publisher.vi"></P>
+<P><IMG SRC="ROS__Publisherd.png" ALT="ROS_Publisher.vi"></P>
+<HR>
+<A NAME="ROS_Subscribers.vi"></A><H2>ROS_Subscribers.vi</H2>
+<P>The ROS Subscriber subscribes to two topics, the unicorn current state and the intention variable from the local planner. </P>
+<P><IMG SRC="ROS__Subscribersc.png" ALT="ROS_Subscribers.vi"></P>
+<P><IMG SRC="ROS__Subscribersp.png" ALT="ROS_Subscribers.vi"></P>
+<P><IMG SRC="ROS__Subscribersd.png" ALT="ROS_Subscribers.vi"></P>
+<HR>
+<A NAME="UWB_Controller.vi"></A><H2>UWB_Controller.vi</H2>
+<P>This VI controlls the DWM over UART. It starts of by resetting the DWM by sending a reset message over UART. It then starts sending CR messages to the DWM and poll for a response. When anything is received on the poll the DWM is operational. It then starts to request a position message which it saves in a global variable later used by the ROS publisher.</P>
+<P><IMG SRC="UWB__Controllerc.png" ALT="UWB_Controller.vi"></P>
+<P><IMG SRC="UWB__Controllerp.png" ALT="UWB_Controller.vi"></P>
+<P><IMG SRC="UWB__Controllerd.png" ALT="UWB_Controller.vi"></P>
+</BODY>
+</HTML>
